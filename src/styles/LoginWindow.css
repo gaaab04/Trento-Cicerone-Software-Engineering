@@ -1,0 +1,80 @@
+.mainWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 450px;
+    min-height: 70%;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    color: #000000;
+    font-family: "Poppins", sans-serif;
+}
+
+/*container scritta Trento Cicerone */
+.titoloApp {
+    text-align: center;
+    margin-bottom: 2rem;
+
+}
+
+/*scritta "Trento"*/
+.titoloAppText1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.1;
+    color: #000000;
+}
+
+/*scritta "Cicerone"*/
+.titoloAppText2 {
+    font-size: 3rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.1;
+    color: #000000;
+}
+
+/* testo sopra il bottone di login */
+.loginText {
+    font-size: 1.2rem;
+    margin: 1.5rem 0;
+    color: #000000;
+    font-weight: 300;
+}
+
+/* stile del bottone google */
+div[role="button"] {
+    border-radius: 10px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+div[role="button"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* parte responsive - riduce le dimensioni della card su mobile */
+@media (max-width: 600px) {
+    .mainWrapper {
+        width: 90%;
+        padding: 2rem 1.5rem;
+    }
+
+    .titoloAppText1 {
+        font-size: 2rem;
+    }
+
+    .titoloAppText2 {
+        font-size: 1.6rem;
+    }
+
+    .loginText {
+        font-size: 1rem;
+    }
+}

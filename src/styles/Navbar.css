@@ -20,7 +20,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-
+/*logo scritta Trento Cicerone */
 .navbar-logo {
   font-weight: bold;
   font-size: 1.3rem;
@@ -41,5 +41,5 @@
 }
 
 .navbar-links a:hover {
-  color: white; 
+  color: white;  /* è possibile modificarlo per cambiare il colore quando ci si passa sopra */
 }
