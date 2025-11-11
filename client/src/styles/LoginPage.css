@@ -1,3 +1,4 @@
+@import "colors.css";
 * {
     margin: 0;
     padding: 0;
@@ -33,13 +34,13 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: whitesmoke;
+    background: var(--color-background);
 }
 
 /* responsive su tablet e mobile */
 @media (max-width: 968px) {
     .TestPage {
-        background: whitesmoke;
+        background: var(--color-background);
     }
 
     .loginImage {
