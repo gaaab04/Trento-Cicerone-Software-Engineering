@@ -30,7 +30,7 @@ function InputMessage({ onSend }) {
 
       
       <button className="sendButton" onClick={handleSend}>
-        <img src={ArrowUpIcon} alt="Invia" />
+          <img src={ArrowUpIcon} alt="Invia" />
       </button>
       
     </div>

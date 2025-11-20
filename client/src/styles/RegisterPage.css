@@ -12,7 +12,7 @@ html, body {
 }
 
 /* layout principale flex per dividere la pagina in due colonne */
-.loginPage {
+.registerPage {
     display: flex;
     min-height: 100vh;
     width: 100vw;
@@ -27,8 +27,7 @@ html, body {
     object-position: center;
 }
 
-/* sezione destra con la LoginWindow */
-.loginSection {
+.registerSection {
     flex: 0 0 50%;
     width: 50%;
     display: flex;
@@ -41,7 +40,7 @@ html, body {
 
 /* responsive su tablet e mobile */
 @media (max-width: 968px) {
-    .loginPage {
+    .registerPage {
         background: var(--color-background);
     }
 
@@ -49,7 +48,7 @@ html, body {
         display: none;
     }
 
-    .loginSection {
+    .registerSection {
         flex: 1;
         width: 100vw;
         min-height: 100vh;

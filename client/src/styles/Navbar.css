@@ -6,7 +6,6 @@
   transform: translateX(-50%);  
   width: 80%;
   height: 60px;
-  
   background: var(--color-primary);
   border-radius: 30px;               
   backdrop-filter: blur(6px);        
@@ -18,7 +17,7 @@
   padding: 0 30px;
   color: white;
   z-index: 1000; /* Per restare sopra gli altri elementi */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.3);
 }
 
 /*logo scritta Trento Cicerone */

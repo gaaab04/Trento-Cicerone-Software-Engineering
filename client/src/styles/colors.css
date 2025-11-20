@@ -1,9 +1,16 @@
 :root {
-    --color-primary: rgba(44, 62, 80, 0.8);  /* tono principale, è quello usato nella navbar e nell'input box */
-    --color-secondary: #E8EEF2;     /* usato per messaggi bot */
-    --color-background: #F5F5F5;    /* usato come background al posto del bianco di default */
-    --color-text: #FFFFFF;          /* bianco semplice per il testo normale */
-    --color-text-secondary: #ccc;   /* grigio per testo un po' meno rilevante */
-    --color-success: #28a745;       /* per messaggi di successo anche se non penso lo useremo */
-    --color-error: #C0392B;         /* per messaggi di errore */
+    --color-primary: rgba(44, 62, 80, 0.8);
+    /* tono principale, è quello usato nella navbar e nell'input box */
+    --color-secondary: #4D5061;
+    /* usato per messaggi bot */
+    --color-background: #F5F5F5;
+    /* usato come background al posto del bianco di default */
+    --color-text: #FFFFFF;
+    /* bianco semplice per il testo normale */
+    --color-text-secondary: #ccc;
+    /* grigio per testo un po' meno rilevante */
+    --color-success: #28a745;
+    /* per messaggi di successo anche se non penso lo useremo */
+    --color-error: #C0392B;
+    /* per messaggi di errore */
 }

@@ -66,10 +66,11 @@ input {
     background-color: #f9f9f9;
     color: #000000;
 }
-.loginButtonWrapper {
+.registerButtonWrapper {
     width: 100%;
 }
-.loginButton {
+
+.registerButton {
     background-color: var(--color-primary);
     width: 100%;
     border-radius: 30px;
@@ -77,18 +78,16 @@ input {
     margin-bottom: 1rem;
 }
 
-.linkToRegister {
+.linkToLogin {
     color: var(--color-primary);
     text-decoration: none;
     cursor: pointer;
     transition: color 0.3s ease-in-out;
 }
 
-.linkToRegister:hover {
-    color: var(--color-text-secondary); /* cambia colore al passaggio del mouse */
+.linkToLogin:hover {
+    color: var(--color-text-secondary);
 }
-
-
 
 /* parte responsive - riduce le dimensioni della card su mobile */
 @media (max-width: 600px) {
