@@ -30,6 +30,7 @@ app.use('/api/access', roleRoutes)
 //Rotte per gli admin
 app.use('/api/access/admin', adminRoutes)
 
+//rotte per le faq
 app.use('/api/faqs', faqRoutes);
 
 // Rotta base per verificare che tutto funzioni

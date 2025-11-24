@@ -1,5 +1,5 @@
 import express from 'express';
-import { getFaqs, createFaq, updateFaq, deleteFaq } from '../controllers/operatorFaqController.js';
+import { getFaqs, createFaq, updateFaq, deleteFaq } from '../controllers/faqController.js';
 import { verifyUser } from '../middleware/authMiddleware.js';
 import { permit } from '../middleware/roleMiddleware.js';
 
@@ -7,13 +7,6 @@ import { permit } from '../middleware/roleMiddleware.js';
 
 const router = express.Router();
 
-//Poi quando sui usa il router bisogna specificare
-/*
-import faqRoutes from './faqRoutes.js';
-app.use('/api/faqs', faqRoutes)
-*/
-
-// router.get('/public', verifyUser, permit("user", "operator", "admin"), getPublic);
 
 
 // READ ALL: GET /api/faqs, rotta aperta a tutti
