@@ -1,16 +1,14 @@
 //Questo componente è per gestire l'input del messaggio che l'utente andrà ad inserire
-import React, { useState } from "react";
 import ArrowUpIcon from "../assets/arrow-up.svg";
 import "../styles/InputMessage.css";
 
-function InputMessage({ onSend }) {
-  const [userMessage, setUserMessage] = useState("");
+function InputMessage({ onSend, userMessage, setUserMessage }) {
 
   const handleChange = (e) => setUserMessage(e.target.value);
 
   const handleSend = () => {
     if (!userMessage.trim()) return;
-    onSend(userMessage);
+    if (onSend) onSend(userMessage);
     setUserMessage(""); // pulisce l'input
   };
 

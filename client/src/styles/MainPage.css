@@ -1,5 +1,29 @@
 @import "colors.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 body {
     background-color: var(--color-background);
+    font-family: 'Inter', sans-serif;
+}
+
+
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.mainContainer > * {
+    flex-shrink: 0;
+}
+
+.faqsContainer {
+    flex: 1;
+    overflow-y: auto;
+    padding: 100px 2rem 140px 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-items: center;
+    justify-content: center;
 }
