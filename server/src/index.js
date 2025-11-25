@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
 import roleRoutes from './routes/roleRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import adminRoutes from "./routes/adminRoutes.js";
 import faqRoutes from './routes/faqRoutes.js';
 
@@ -32,6 +33,9 @@ app.use('/api/access/admin', adminRoutes)
 
 //rotte per le faq
 app.use('/api/faqs', faqRoutes);
+
+//rotte per dati del proprio profilo
+app.use('/api/users', userRoutes);
 
 // Rotta base per verificare che tutto funzioni
 app.get('/', (req, res) => {
