@@ -2,6 +2,7 @@ import React from "react";
 import "../styles/LoginWindow.css"
 import {useState} from "react";
 import axios from "axios";
+import {API} from "../api.js";
 import {Link, useNavigate} from "react-router-dom";
 
 
@@ -14,7 +15,7 @@ function LoginWindow() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:5001/api/login', {email, password})
+        axios.post(`${API}/api/login`, {email, password})
             .then(result => {
                 console.log(result)
                 if (result.data.message === "Password corretta") {

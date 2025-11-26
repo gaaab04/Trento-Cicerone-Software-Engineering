@@ -53,7 +53,7 @@ export const updateFaq = async (req, res) => {
             return res.status(404).json({ message: "FAQ non trovata" });
         }
 
-        //risposta HTTP 200 OK con ritorno della faq in formato json appena aggiornata
+        //risposta con ritorno della faq in formato json appena aggiornata
         return res.status(200).json(updatedFaq);
 
     } catch (error) {

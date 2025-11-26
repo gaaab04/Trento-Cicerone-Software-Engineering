@@ -1,0 +1,230 @@
+@import "colors.css";
+
+.profilePage {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background: linear-gradient(
+    to top,
+    var(--color-background) 0%,
+    var(--color-background) 50%,
+    var(--color-primary) 50%,
+    var(--color-primary) 100%
+    );
+    align-items: center;
+    justify-content: center;
+}
+
+.profilePage .mainWrapper {
+    background-color: white;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 600px;
+}
+
+.profilePage .appLogo {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profilePage .appLogo p {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.profilePage .pageTitle {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: black;
+}
+.profilePage .profileInfoWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: start;
+}
+
+.profilePage .infoSection {
+    margin-bottom: 0rem; /* spazio tra le sezioni */
+    display: flex;
+    flex-direction: column;
+}
+
+.profilePage .infoSection .infoTitle {
+    margin-bottom: 0.1rem;
+    font-weight: 600;
+}
+
+.profilePage .infoSection .infoText {
+    margin-top: 0;
+}
+.profilePage form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 0;
+}
+.profilePage input {
+    width: 70%;
+    font-size: 13px;
+    margin: 10px 0;
+    border: var(--color-primary) 1px solid;
+    border-radius: 20px;
+}
+
+
+.profilePage .changePasswordButton {
+    width: 70%;
+    background-color: white;
+    color: var(--color-primary);
+    border: var(--color-primary) 1px solid;
+    border-radius: 20px;
+    margin-top: 1rem;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.profilePage .changePasswordButton:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.profilePage .logoutButton {
+    margin: 1.5rem 0 0.8rem 0;
+    border-radius: 20px;
+    width: 80%;
+    height: 2.8rem;
+    color: white;
+    background-color: var(--color-primary);
+    transition: background-color 0.5s ease, color 0.3s ease;
+}
+
+.profilePage .logoutButton:hover {
+    background-color: white;
+    color: var(--color-primary);
+    border: var(--color-primary) 2px solid;
+}
+
+.profilePage .backToHome {
+    color: var(--color-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.profilePage .backToHome:hover {
+    color: var(--color-text-secondary);
+}
+
+
+@media (max-width: 968px) {
+    .profilePage .mainWrapper {
+        min-width: 500px;
+        padding: 1.5rem;
+    }
+
+    .profilePage .pageTitle {
+        font-size: 1.3rem;
+    }
+
+    .profilePage input {
+        width: 80%;
+    }
+
+    .profilePage .changePasswordButton {
+        width: 80%;
+    }
+}
+
+@media (max-width: 768px) {
+    .profilePage {
+        background: var(--color-background);
+    }
+
+    .profilePage .mainWrapper {
+        min-width: 90%;
+        max-width: 90%;
+        padding: 1.5rem;
+    }
+
+    .profilePage .appLogo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .profilePage .appLogo p {
+        font-size: 1.5rem;
+    }
+
+    .profilePage .pageTitle {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .profilePage input {
+        width: 90%;
+        font-size: 16px;
+    }
+
+    .profilePage .changePasswordButton {
+        width: 90%;
+    }
+
+    .profilePage .logoutButton {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .profilePage .mainWrapper {
+        min-width: 95%;
+        padding: 1rem;
+    }
+
+    .profilePage .appLogo {
+        width: 70px;
+        height: 70px;
+    }
+
+    .profilePage .appLogo p {
+        font-size: 1.3rem;
+    }
+
+    .profilePage .pageTitle {
+        font-size: 1.1rem;
+    }
+
+    .profilePage .infoSection .infoTitle {
+        font-size: 0.95rem;
+    }
+
+    .profilePage .infoSection .infoText {
+        font-size: 0.9rem;
+    }
+
+    .profilePage input {
+        width: 100%;
+        font-size: 13px;
+        padding: 0.6rem;
+    }
+
+    .profilePage .changePasswordButton {
+        width: 100%;
+        padding: 0.6rem;
+    }
+
+    .profilePage .logoutButton {
+        width: 100%;
+        height: 2.5rem;
+        font-size: 0.95rem;
+    }
+
+    .profilePage .backToHome {
+        font-size: 0.9rem;
+    }
+}

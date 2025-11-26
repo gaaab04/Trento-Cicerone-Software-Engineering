@@ -1,6 +1,7 @@
 import React from "react";
 import "../styles/RegisterWindow.css"
 import {useState} from "react";
+import {API} from "../api.js";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
 
@@ -45,7 +46,7 @@ function RegisterWindow() {
             return;
         }
 
-        axios.post('http://localhost:5001/api/register', {email, password})
+        axios.post(`${API}/api/register`, {email, password})
             .then(result => {
                 console.log(result)
 

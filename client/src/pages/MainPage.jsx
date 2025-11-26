@@ -2,6 +2,7 @@ import Navbar from "../components/Navbar";
 import InputMessage from "../components/InputMessage";
 import Faqs from "../components/Faqs";
 import axios from "axios";
+import {API} from "../api.js";
 import {useEffect, useState} from "react";
 import "../styles/MainPage.css"
 import {useNavigate} from "react-router-dom";
@@ -13,12 +14,12 @@ function MainPage() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                await axios.get('http://localhost:5001/api/protected', { withCredentials: true });
+                await axios.get(`${API}/api/protected`, { withCredentials: true });
             } catch (err) {
                 if (err.response && err.response.status === 401) {
                     try {
-                        await axios.get('http://localhost:5001/api/refresh', { withCredentials: true }); // prova ad aggiornare il token
-                        await axios.get('http://localhost:5001/api/protected', { withCredentials: true });
+                        await axios.get(`${API}/api/refresh`, { withCredentials: true }); // prova ad aggiornare il token
+                        await axios.get(`${API}/api/protected`, { withCredentials: true });
                     } catch {
                         navigate('/login');
                     }

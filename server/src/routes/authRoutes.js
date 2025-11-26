@@ -1,5 +1,5 @@
 import express from 'express';
-import {loginUser, registerUser} from '../controllers/authController.js';
+import {loginUser, registerUser, logoutUser} from '../controllers/authController.js';
 import {renewToken, verifyUser} from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -15,6 +15,9 @@ router.post('/login', loginUser);
 
 //GET /api/refresh
 router.get('/refresh', renewToken);
+
+//POST /api/logout
+router.post('/logout', logoutUser);
 
 //GET /api/protected
 router.get('/protected', verifyUser, (req, res) => {

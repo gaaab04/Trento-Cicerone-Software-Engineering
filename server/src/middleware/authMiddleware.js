@@ -14,6 +14,7 @@ export const verifyUser = (req, res, next) => {
         const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
 
         //aggiunge le info utili all'oggetto req per poterli usare dopo
+        req.userId = decoded.userId;
         req.email = decoded.email;
         req.role = decoded.role;
 
@@ -38,7 +39,7 @@ export const renewToken = (req, res) => {
         if (err) return res.status(401).json({ valid: false, message: "token di rinnovo non valido" });
 
         // se valido genero un nuovo token di accesso e lo invio nel cookie
-        const newAccessToken = jwt.sign({ email: decoded.email, role:decoded.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const newAccessToken = jwt.sign({userId: decoded.userId, email: decoded.email, role:decoded.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
         res.cookie("accessToken", newAccessToken, { maxAge: 3600000, httpOnly: true, secure: false, sameSite: 'lax' });
 
         // ritorna messaggio di successo

@@ -86,12 +86,12 @@ export const loginUser = async (req, res) => {
         }
 
         // token di accesso
-        const accessToken = jwt.sign({email: user.email, role: user.role },
+        const accessToken = jwt.sign({userId: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
             {expiresIn: "1h"});
 
         // token di rinnovo
-        const refreshToken = jwt.sign({email: user.email, role:user.role},
+        const refreshToken = jwt.sign({userId: user._id, email: user.email, role:user.role},
             process.env.JWT_REFRESH,
             {expiresIn: "7d"});
 
@@ -106,3 +106,13 @@ export const loginUser = async (req, res) => {
         return res.json({login:false, error: error.message });
     }
 };
+
+// funzione per effettuare il logout dell'utente
+export const logoutUser = (req, res) => {
+    // prima rimuove i cookie dal browser
+    res.clearCookie("accessToken", {httpOnly: true, secure: false, sameSite: 'lax'}); //TODO vanno cambiati quando si va ad https
+    res.clearCookie("refreshToken", {httpOnly: true, secure: false, sameSite: 'lax'});
+
+    // invia messaggio di successo
+    return res.status(200).json({message: "Logout effettuato con successo"});
+}

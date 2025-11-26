@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import "../styles/Faqs.css";
+import {API} from "../api.js";
 
 function Faqs({setMessage}) {
     // lista di FAQs da mostrare in caso di errori nel caricamento dal database
@@ -15,7 +16,7 @@ function Faqs({setMessage}) {
     useEffect(() => {
         const fetchFaqs = async () => {
             try {
-                const response = await fetch('http://localhost:5001/api/faqs', {
+                const response = await fetch(`${API}/api/faqs`, {
                     credentials: 'include'
                 });
                 if (!response.ok) {
