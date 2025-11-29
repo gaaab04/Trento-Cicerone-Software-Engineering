@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.chatContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: 0 20px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: transparent;
+    scroll-behavior: smooth;
+    gap: 12px;
+    scrollbar-width: none;
+}
+
+/*nascondo la scrollbar perché irrita troppo*/
+.chatContainer::-webkit-scrollbar {
+    display: none;
+}
+
+.chatMessage {
+    display: inline-block;
+    max-width: 65%;
+    width: fit-content;
+    padding: 12px 16px;
+    border-radius: 30px;
+    word-wrap: break-word;
+    color: black;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.chatMessage.user {
+    align-self: flex-end;
+    background-color: #E6E6E6;
+    border-bottom-right-radius: 4px;
+    width: fit-content;
+    margin-left: auto;
+}
+
+.chatMessage.bot {
+    align-self: flex-start;
+    background-color: rgba(127, 140, 153, 0.4);
+    border-bottom-left-radius: 4px;
+}
+
+.chatMessage p {
+    margin: 0;
+}
+
+.chatMessageWrapper {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start; /* default per il bot */
+}
+
+.userWrapper {
+    align-items: flex-end; /* i messaggi utente restano a destra */
+}
+
+.feedbackButtons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+    width: auto;
+}
+
+.feedbackButtons img {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.feedbackButtons img:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    rotate: -10deg;
+}
+
+
+.feedbackPopupOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+.feedbackPopup {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: var(--color-primary);
+}
+
+.feedbackPopup textarea {
+    width: 100%;
+    color: black;
+    background-color: var(--color-background);
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 20px;
+    border: 1px solid var(--color-primary);
+    resize: none;
+}
+
+.feedbackPopupButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.feedbackPopupButtons button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--color-primary);
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.feedbackPopupButtons button:hover {
+    background-color: var(--color-text-secondary);
+}
+
+
+/*stili markdown*/
+.chatMessage * {
+    font-family: 'Inter', sans-serif;
+}
+
+.chatMessage strong {
+    font-weight: 600;
+}
+
+.chatMessage em {
+    font-style: italic;
+}
+
+
+.chatMessage ul, .chatMessage ol {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.chatMessage li {
+    margin: 4px 0;
+}
+
+.chatMessage a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    transition: color 0.3s ease-in-out;
+    font-weight: 700;
+}
+
+.chatMessage a:hover {
+    color: var(--color-secondary);
+}
+
+/* animazione di carimento messaggi, l'ho fatta in css cosi è più leggera */
+/* l'ho presa da https://norbertbmwebdev.substack.com/p/how-to-create-3-animated-loading */
+.chatMessageLoading {
+    align-self: flex-start;
+    background-color: rgba(127, 140, 153, 0.4);
+    padding: 12px 16px;
+    border-radius: 30px;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.chatLoadingDots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    height: 20px;
+}
+
+.chatLoadingDots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.chatLoadingDots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.chatLoadingDots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+    40% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}

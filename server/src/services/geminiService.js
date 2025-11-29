@@ -1,0 +1,109 @@
+import {GoogleGenerativeAI} from '@google/generative-ai'
+import dotenv from 'dotenv'
+
+dotenv.config();
+
+class GeminiService {
+    constructor(){
+        // prende la chiave dall'env
+        this.apiKey = process.env.GEMINI_API_KEY;
+        // se manca la chiave, lancia un errore
+        if (!this.apiKey) {
+            console.error("Manca la chiave API gemini");
+            throw new Error("Manca la chiave API gemini");
+        }
+        // indica che il servizio è pronto
+        this.available = true;
+
+        // istanzia il generatore di risposte
+        this.genAI = new GoogleGenerativeAI(this.apiKey);
+
+        // modello di generazione della risposta, qui ho messo gemini 2.5 flash lite che è il più economico ma possiamo cambiarlo
+        this.model = this.genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash-lite',
+            generationConfig: {
+                temperature: 0.5, // quantità di fantasia - precisione, TODO forse andrebbe alzato
+                topP: 0.9, // limita la scelta ai token più probabili
+                topK: 40, // determina quanti token vengono considerati
+                maxOutputTokens: 1024, //lunghezza massima della risposta
+            }
+        });
+
+        // genera 768 dimensioni, quindi ho settato atlas a numDimensions = 768 perché devono essere uguali
+        this.embeddingModel = this.genAI.getGenerativeModel({
+            model: 'text-embedding-004'
+        });
+
+        console.log("Gemini è pronto");
+    }
+
+    // funzione che genera la risposta al prompt
+    async generateResponse(prompt) {
+        try {
+            const result = await  this.model.generateContent(prompt);
+            const text = result.response.text();
+            return text;
+        } catch (error) {
+            console.error("Errore nella generazione della risposta: ", error.message);
+            throw new Error (`Errore di gemini: ${error.message}`);
+        }
+    }
+
+    async createEmbedding(text) {
+        try {
+            // ci si assicura che il testo sia valido
+            if (!text || typeof text !== 'string' || text.trim().length === 0) {
+                throw new Error('Testo vuoto o non valido');
+            }
+            // qui tronco la lunghezza del testo a 10.000 caratteri perché penso sia il limite di gemini
+            const trucatedText = text.slice(0, 10000);
+            // qui si richiede l'embedding al modello
+            const result = await this.embeddingModel.embedContent(trucatedText);
+            const embedding = result.embedding.values;
+            return embedding;
+        } catch (error) {
+            console.error("Errore nella creazione dell'embedding: ", error.message);
+            throw new Error(`Errore di gemini: ${error.message}`);
+        }
+    }
+
+    async generateContextualResponse(userQuery, relevantDocs, chatHistory = []) {
+        // questa è la parte di costruzione del contesto dei documenti
+        const context = relevantDocs
+            .map((doc, index) => `documento ${index+1}: ${doc.documentId}: ${doc.title}`)
+            .join("\n\n---\n\n");
+
+        // storico conversazione (prende gli ultimi 5 messaggi
+        const historyText = chatHistory.length > 0 ?
+            chatHistory
+                .slice(-5)
+                .map(msg => `${msg.role} ${msg.content}`)
+                .join('\n')
+            : 'Prima interazione';
+        // prompt principale
+        const prompt =
+            `Sei un assistente virtuale esperto su Trento, in Italia. 
+            COMPITO:
+            Rispondi alla domanda dell'utente usando principalmente i documenti forniti.
+            - Se i documenti contengono la risposta esatta usala
+            - Se i documenti contengono informazioni parziali, combina le informazioni in modo intelligente ma senza citare il numero di documento
+            - Se menzioni date approssimative (come ad esempio XIII secolo), spiega che è circa quel periodo
+            - Rispondi in modo naturale, amichevole e informativo
+            - Se i documenti non sono rilevanti, dillo chiaramente e suggerisci argomenti su cui puoi aiutare
+           
+            
+            DOCUMENTI RILEVANTI: 
+            ${context}
+            
+            STORICO CONVERSAZIONE: 
+            ${historyText}
+            
+            DOMANDA ATTUALE: ${userQuery}
+            
+            RISPOSTA: Deve essere chiara e utile. Se l'utente comunica in una lingua che non sia in italiano, rispondi in quella lingua`;
+
+        return await this.generateResponse(prompt);
+    }
+}
+
+export default new GeminiService();

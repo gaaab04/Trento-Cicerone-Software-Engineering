@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 // qui si definisce lo schema per la collezione faq del database
-
 const FaqSchema = new mongoose.Schema({
     question: { type: String, required: true, maxlength: 200 },
     category: {

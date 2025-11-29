@@ -7,13 +7,15 @@ import roleRoutes from './routes/roleRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from "./routes/adminRoutes.js";
 import faqRoutes from './routes/faqRoutes.js';
+import chatRoutes from "./routes/chatRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 const app = express();
 
-// connessione a MongoDB
+// connessione a mongodb
 connectDB();
 
-// Middleware generali
+// middleware generali
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -22,26 +24,32 @@ app.use(cors({
 }));
 
 
-// Rotte auth
+// rotte auth
 app.use('/api', authRoutes)
 
-// Rotte per i ruoli
+// rotte per i ruoli
 app.use('/api/access', roleRoutes)
 
-//Rotte per gli admin
+//rotte per gli admin
 app.use('/api/access/admin', adminRoutes)
 
 //rotte per le faq
 app.use('/api/faqs', faqRoutes);
 
-//rotte per dati del proprio profilo
+//rotte per dati e azioni sul profilo utente
 app.use('/api/users', userRoutes);
 
-// Rotta base per verificare che tutto funzioni
+//rotte per la chat
+app.use('/api/chat', chatRoutes);
+
+//rotte per i documenti
+app.use('/api/documents', documentRoutes);
+
+// rotta base per verificare che tutto funzioni
 app.get('/', (req, res) => {
     res.send('API funzionano...');
 });
 
-// Avvio del server
+// avvio del server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Il server sta andando sulla porta ${PORT}`));

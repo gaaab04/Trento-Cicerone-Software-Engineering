@@ -15,7 +15,7 @@ function ProfilePage() {
         const fetchProfile = async () => {
             try {
                 const response = await axios.get(`${API}/api/users/me`, {withCredentials: true});
-                var userRole = response.data.role;
+                let userRole = response.data.role;
                 if (userRole === 'admin') userRole = 'Amministratore';
                 else if (userRole === 'operator') userRole = 'Operatore';
                 else if (userRole === 'user') userRole = 'Utente';
