@@ -29,7 +29,27 @@ export const createFaq = async (req, res) => {
         return res.status(201).json(savedFaq);
 
     } catch (error) {
-        return res.status(400).json({ message: "Impossibile creare la FAQ." });
+        console.error(error);
+
+        // Controlla se l'errore è un errore di validazione di Mongoose
+        if (error.name === 'ValidationError') {
+
+            if (newFaq.question.length > 200) {
+                return res.status(401).json({
+                    message: "Impossibile creare la FAQ. Superato limite 200 caratteri della domanda.",
+                    details: error.message // Includi il messaggio di Mongoose per i dettagli specifici (es. quale campo ha fallito)
+                });
+            }
+
+            // Se è un ValidationError, lo stato 400 indica un errore di input del client
+            return res.status(400).json({
+                message: "Impossibile creare la FAQ. Verifica che il campo 'category' sia valido.",
+                details: error.message // Includi il messaggio di Mongoose per i dettagli specifici (es. quale campo ha fallito)
+            });
+        }
+
+        // Gestione degli altri errori (es. errore di connessione al DB, ecc.)
+        return res.status(500).json({ message: "Errore interno del server durante la creazione della FAQ." });
     }
 };
 
@@ -41,6 +61,10 @@ export const updateFaq = async (req, res) => {
 
     // I nuovi dati sono presi dal corpo della richiesta
     const updates = req.body;
+
+    if (updates.question && updates.question.length > 200) {
+        return res.status(401).json({ message: "La domanda è troppo lunga. La lunghezza massima consentita è 200 caratteri." });
+    }
 
     try {
         // Trova il documento per ID e lo aggiorna
@@ -58,7 +82,20 @@ export const updateFaq = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        return res.status(400).json({ message: "Impossibile aggiornare la FAQ. Controlla i dati", error: error.message });
+
+        // Controlla se l'errore è un errore di validazione di Mongoose
+        if (error.name === 'ValidationError') {
+            // Se è un ValidationError (dovuto a 'enum', 'required', 'maxlength', ecc.)
+            return res.status(400).json({
+                message: "Dati non validi. Verifica che la categoria sia corretta.",
+                details: error.message // Include il messaggio di Mongoose per i dettagli (es. "Category is not a valid enum value")
+            });
+        }
+
+        // Per tutti gli altri tipi di errore (es. errore di connessione al DB, ecc.)
+        return res.status(500).json({
+            message: "Errore interno del server durante l'aggiornamento della FAQ."
+        });
     }
 };
 
