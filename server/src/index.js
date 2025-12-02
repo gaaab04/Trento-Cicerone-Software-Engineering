@@ -9,6 +9,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import faqRoutes from './routes/faqRoutes.js';
 import chatRoutes from "./routes/chatRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
+import ragServiceRoutes from './routes/serviceManagementRoutes.js';
+import serviceStatusManager from './services/serviceStatusManager.js';
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.use(cors({
     credentials: true
 }));
 
+serviceStatusManager.initialize();
 
 // rotte auth
 app.use('/api', authRoutes)
@@ -44,6 +47,9 @@ app.use('/api/chat', chatRoutes);
 
 //rotte per i documenti
 app.use('/api/documents', documentRoutes);
+
+//rotte per lo stato del servizio
+app.use('/api/services', ragServiceRoutes);
 
 // rotta base per verificare che tutto funzioni
 app.get('/', (req, res) => {
