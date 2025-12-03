@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
-// qui si definisce lo schema per i commenti che il modello LLM andrà a leggere
+// Definizione dello schema per il documento che serve a gestire lo stato di attività del servizio
 
 const ServiceStatus = new mongoose.Schema({
-    enabled: {type: Boolean, required: true},
-    maintenanceMessage: {type: String, default: "Servizio attualmente in manutenzione."}
+    enabled: { type: Boolean, required: true },
+    maintenanceMessage: { type: String }// se il servizio è attivo è null, altrimenti contiene un messaggio informativo
 });
 
 // crea il modello, si usa per interagire con il DB
