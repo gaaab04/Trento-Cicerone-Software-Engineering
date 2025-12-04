@@ -1,0 +1,1342 @@
+openapi: 3.0.0
+info:
+  version: "1.0"
+  title: "Trento Cicerone"
+  description: API per l'applicazione "Trento Cicerone"
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:5001/api/v1
+    description: Localhost
+
+paths:
+
+  # --------------------------------------------------------------
+  # AUTH
+  # --------------------------------------------------------------
+
+  /register:
+    post:
+      summary: Registrazione utente
+      tags: [AuthController]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Utente creato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+              example:
+                email: "user@example.com"
+                role: "user"
+        "400":
+          description: Errore di validazione o email già in uso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples: 
+                emailNonValida:
+                  value:
+                    message: "Email non valida"
+                passwordNonValida:
+                  value:
+                    message: "Password non valida"
+                emailNonDisponibile:
+                  value:
+                    message: "Email già in uso"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /login:
+    post:
+      summary: Login utente
+      tags: [AuthController]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Risultato login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              examples:
+                successoLogin:
+                  value:
+                    login: true
+                    message: "Password corretta"
+                    role: "user"
+                utenteNonTrovato:       
+                  value:
+                    login: false
+                    message: "nessuna corrispondenza trovata"
+                passwordNonCorrisponde:       
+                  value:
+                    login: false
+                    message: "la password non corrisponde"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /logout:
+    post:
+      summary: Logout
+      tags: [AuthController]
+      responses:
+        "200":
+          description: Logout effettuato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Logout effettuato con successo"
+
+  /refresh:
+    post:
+      summary: Rinnovo token
+      tags: [AuthMiddleware]
+      responses:
+        "200":
+          description: Token rinnovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  message:
+                    type: string
+              example:
+                valid: true
+                message: "Token rinnovato"
+        "401":
+          description: Token non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenErrorResponse"
+              examples:
+                tokenInvalido:
+                  value:
+                    valid: false
+                    message: "token di rinnovo non valido"
+                tokenNonPresente:
+                  value:
+                    valid: false
+                    message: "nessun token di rinnovo presente"
+      
+  /protected:
+    get:
+      summary: Verifica token
+      tags: [AuthMiddleware]
+      description: Verifica il token di accesso presente nel cookie "accessToken".
+      responses:
+        "401":
+          description: Token mancante, non valido o scaduto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenErrorResponse"
+              examples:
+                nessunToken:
+                  value:
+                    valid: false
+                    message: "nessun token di accesso presente"
+                tokenNonValido:
+                  value:
+                    valid: false
+                    message: "token non valido o scaduto"
+
+  # --------------------------------------------------------------
+  # ADMIN
+  # --------------------------------------------------------------
+
+  /access/admin/promote/{id}:
+    patch:
+      summary: Promuove utente a operatore
+      tags: [AdminController]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      description: Promuove un utente al ruolo di operatore, se possibile. Il token di accesso viene preso dal cookie.
+      responses:
+        "200":
+          description: Risultato operazione
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromoteUserResponse"
+              examples:
+                utentePromosso:
+                  value:
+                    message: "Utente promosso a operatore"
+                utenteNonTrovato:
+                  value:
+                    message: "Utente non trovato"
+                nonPromuovibile:
+                  value:
+                    message: "Non è possibile promuovere un operatore o un admin"
+                erroreServer:
+                  value:
+                    message: "Errore del server"
+                    error: "dettagli errore"
+
+  /access/admin/demote/{id}:
+    patch:
+      summary: Demote utente da operatore a user
+      tags: [AdminController]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      description: Rimuove il ruolo di operatore da un utente, se possibile. Il token di accesso viene preso dal cookie.
+      responses:
+        "200":
+          description: Risultato operazione
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemoteUserResponse"
+              examples:
+                demoted:
+                  value:
+                    message: "Ruolo di operatore rimosso"
+                userNotFound:
+                  value:
+                    message: "Utente non trovato"
+                notOperator:
+                  value:
+                    message: "Non è possibile togliere il ruolo di operatore da un utente normale"
+                serverError:
+                  value:
+                    message: "Errore del server"
+                    error: "dettagli errore"
+
+  # --------------------------------------------------------------
+  # ROLE CONTROLLER
+  # --------------------------------------------------------------
+
+  /access/public:
+    get:
+      summary: Accesso pubblico
+      tags: [RoleController]
+      description: Restituisce informazioni accessibili a chiunque. Il token, se presente, viene letto dal cookie.
+      responses:
+        "200":
+          description: Accesso consentito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicAccessResponse"
+              examples:
+                accessoConToken:
+                  value:
+                    message: "Accesso consentito a chiunque"
+                    user: "mario.rossi@example.com"
+                    role: "user"
+                accessoSenzaToken:
+                  value:
+                    message: "Accesso consentito a chiunque"
+                    user: null
+                    role: null
+                erroreServer:
+                  value:
+                    message: "Errore del server"
+
+  /access/operator:
+    get:
+      summary: Accesso operatori e admin
+      tags: [RoleController]
+      description: Restituisce informazioni accessibili solo a operatori e admin. Il token viene letto dal cookie.
+      responses:
+        "200":
+          description: Accesso consentito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperatorAccessResponse"
+              examples:
+                accessoConToken:
+                  value:
+                    message: "Accesso consentito a operatori e admin"
+                    user: "mario.rossi@example.com"
+                    role: "operator"
+                accessoAdmin:
+                  value:
+                    message: "Accesso consentito a operatori e admin"
+                    user: "giulia.bianchi@example.com"
+                    role: "admin"
+                accessoSenzaToken:
+                  value:
+                    message: "Errore del server"
+                    user: null
+                    role: null
+
+  /access/admin:
+    get:
+      summary: Accesso solo admin
+      tags: [RoleController]
+      description: Restituisce informazioni accessibili solo agli admin. Il token viene letto dal cookie.
+      responses:
+        "200":
+          description: Accesso consentito
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAccessResponse"
+              examples:
+                accessoAdmin:
+                  value:
+                    message: "Accesso consentito solo a admin"
+                    user: "giulia.bianchi@example.com"
+                    role: "admin"
+                accessoSenzaToken:
+                  value:
+                    message: "Errore del server"
+                    user: null
+                    role: null
+
+  # --------------------------------------------------------------
+  # USER CONTROLLER
+  # --------------------------------------------------------------
+
+  /users/me:
+    get:
+      summary: Profilo utente loggato
+      tags: [UserController]
+      description: Restituisce il profilo dell'utente autenticato tramite token presente nel cookie.
+      responses:
+        "200":
+          description: Profilo recuperato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+              example:
+                _id: "648d2f5e2f1b3c6b12345678"
+                email: "mario.rossi@example.com"
+                role: "user"
+        "401":
+          description: Token mancante o ID utente non presente nel token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Non autorizzato: ID utente non trovato nel token."
+        "404":
+          description: Utente non trovato nel database
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Profilo utente non trovato nel database."
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore interno del server durante il recupero del profilo."
+
+  /users/me/changePassword:
+    put:
+      summary: Cambia password
+      tags: [UserController]
+      description: Modifica la password dell'utente autenticato. Il token viene letto dal cookie.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Password modificata con successo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordResponse"
+              example:
+                message: "Password modificata con successo"
+        "400":
+          description: Campi mancanti
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Tutti i campi sono obbligatori"
+        "401":
+          description: Password vecchia non corretta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "La password vecchia non coincide con quella registrata. Riprova."
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Utente non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore interno del server durante la modifica della password."
+
+
+  # --------------------------------------------------------------
+  # DOCUMENT CONTROLLER
+  # --------------------------------------------------------------
+
+  /documents:
+    get:
+      summary: Recupera documenti
+      tags: [DocumentController]
+      description: Restituisce tutti i documenti (embedding escluso).
+      responses:
+        "200":
+          description: Lista documenti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+              example:
+                - _id: "648d2f5e2f1b3c6b12345678"
+                  title: "Documento 1"
+                  content: "Contenuto del documento 1"
+                  category: "categoria1"
+                  embedding: 3
+                  metadata:
+                    source: "fonte1"
+                    lastUpdated: "2025-12-04T12:00:00Z"
+                - _id: "648d2f5e2f1b3c6b87654321"
+                  title: "Documento 2"
+                  content: "Contenuto del documento 2"
+                  category: "categoria2"
+                  embedding: 3
+                  metadata:
+                    source: "fonte2"
+                    lastUpdated: "2025-12-04T12:30:00Z"
+                   
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore nel server"
+                error: "dettagli errore"
+
+    post:
+      summary: Aggiungi documento
+      tags: [DocumentController]
+      description: Crea un nuovo documento con embedding.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentCreate"
+      responses:
+        "201":
+          description: Documento creato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+              example:
+                _id: "648d2f5e2f1b3c6b12345678"
+                title: "Nuovo Documento"
+                content: "Contenuto"
+                category: "categoria"
+                source: "fonte"
+                metadata:
+                  lastUpdated: "2025-12-04T13:00:00Z"
+                  wordCount: 10
+                  embeddingModel: "text-embedding-004"
+        "400":
+          description: Dati mancanti o embedding non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                titoloMancante:
+                  value:
+                    message: "Titolo del documento obbligatorio"
+                contenutoMancante:
+                  value:
+                    message: "Contenuto del documento obbligatorio"
+                embeddingNonValido:
+                  value:
+                    message: "Embedding non valido. Le dimensioni sono errate"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore nel server"
+                error: "dettagli errore"
+
+  /documents/{id}:
+    put:
+      summary: Aggiorna documento
+      tags: [DocumentController]
+      description: Aggiorna un documento esistente; l'embedding viene aggiornato se cambiano titolo o contenuto.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentCreate"
+      responses:
+        "200":
+          description: Documento aggiornato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "400":
+          description: Embedding non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Embedding non valido. Le dimensioni sono errate"
+        "404":
+          description: Documento non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Documento non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore nel server"
+                error: "dettagli errore"
+
+    delete:
+      summary: Elimina documento
+      tags: [DocumentController]
+      description: Elimina un documento esistente.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Documento eliminato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deletedDoc:
+                    $ref: "#/components/schemas/Document"
+              example:
+                message: "documento eliminato con successo"
+                deletedDoc:
+                  _id: "648d2f5e2f1b3c6b12345678"
+                  title: "Documento da eliminare"
+                  content: "Contenuto"
+                  category: "categoria"
+                  source: "fonte"
+                  metadata:
+                    lastUpdated: "2025-12-04T14:00:00Z"
+                    wordCount: 50
+                    embeddingModel: "text-embedding-004"
+        "400":
+          description: ID del documento mancante
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "ID del documento obbligatorio"
+        "404":
+          description: Documento non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Documento non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore nel server"
+                error: "dettagli errore"
+
+ 
+  # --------------------------------------------------------------
+  # CHAT CONTROLLER
+  # --------------------------------------------------------------
+
+  /chat:
+    post:
+      summary: Invia messaggio
+      tags: [ChatController]
+      description: Invia un messaggio alla chat e riceve la risposta del bot.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessageRequest"
+      responses:
+        "200":
+          description: Risposta bot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessageResponse"
+        "400":
+          description: Parametri mancanti
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "message e sessionId sono obbligatori"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Errore interno durante l'invio del messaggio"
+
+  /chat/{sessionId}:
+    get:
+      summary: Cronologia chat
+      tags: [ChatController]
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Messaggi della sessione
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+        "400":
+          description: SessionId mancante
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "sessionId è obbligatorio"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Errore durante il recupero dello storico chat"
+
+  /chat/{messageId}/feedback:
+    post:
+      summary: Aggiungi feedback
+      tags: [ChatController]
+      parameters:
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackRequest"
+      responses:
+        "200":
+          description: Feedback aggiunto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessage"
+        "400":
+          description: Tipo di feedback non valido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "tipo di feedback non valido. deve essere positive o negative"
+        "404":
+          description: Messaggio non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "messaggio non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Errore durante feedback"
+
+  /chat/session:
+    post:
+      summary: Crea nuova sessione
+      tags: [ChatController]
+      responses:
+        "200":
+          description: Sessione creata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+              example:
+                sessionId: "session-1700000000000"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
+                error: "dettagli errore"
+
+  # --------------------------------------------------------------
+  # FAQ CONTROLLER
+  # --------------------------------------------------------------
+
+  /faqs:
+    get:
+      tags: [FaqController]
+      responses:
+        "200":
+          description: Lista FAQ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FAQ"
+        "500":
+          description: Errore del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore durante il recupero delle FAQ."
+
+    post:
+      tags: [FaqController]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FAQCreate"
+      responses:
+        "201":
+          description: FAQ creata con successo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FAQ"
+        "400":
+          description: Categoria non valida
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Impossibile creare la FAQ. Verifica che il campo 'category' sia valido."
+                details: "Mongoose validation error details"
+        "401":
+          description: Domanda troppo lunga
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Impossibile creare la FAQ. Superato limite 200 caratteri della domanda."
+                details: "Mongoose validation error details"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore interno del server durante la creazione della FAQ."
+
+  /faqs/{id}:
+    put:
+      tags: [FaqController]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FAQUpdate"
+      responses:
+        "200":
+          description: FAQ aggiornata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FAQ"
+        "400":
+          description: Dati non validi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Dati non validi. Verifica che la categoria sia corretta."
+                details: "Mongoose validation error details"
+        "401":
+          description: Domanda troppo lunga
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "La domanda è troppo lunga. La lunghezza massima consentita è 200 caratteri."
+                details: null
+        "404":
+          description: FAQ non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "FAQ non trovata"
+                details: null
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore interno del server durante l'aggiornamento della FAQ."
+                details: null
+
+    delete:
+      tags: [FaqController]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: FAQ eliminata o non trovata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deletedId:
+                    type: string
+              examples:
+                eliminata:
+                  value:
+                    message: "FAQ eliminata con successo"
+                    deletedId: "64f7b123abc4567890def123"
+                nonTrovata:
+                  value:
+                    message: "FAQ non trovata"
+                    deletedId: null
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore durante l'eliminazione della FAQ"
+                details: "Dettagli tecnici dell'errore"
+
+# --------------------------------------------------------------
+# SERVICE MANAGEMENT CONTROLLER
+# --------------------------------------------------------------
+
+  /service/status:
+    get:
+      tags: [ServiceController]
+      responses:
+        "200":
+          description: Stato del servizio recuperato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                  message:
+                    type: string
+              examples:
+                attivo:
+                  value:
+                    enabled: true
+                    message: "Servizio attivo e funzionante"
+                disattivo:
+                  value:
+                    enabled: false
+                    message: "Servizio temporaneamente non disponibile"
+        "404":
+          description: Stato del servizio non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Stato non trovato"
+ 
+  /services/enable:
+    patch:
+      tags: [ServiceController]
+      responses:
+        "200":
+          description: Servizio abilitato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Servizio abilitato con successo"
+        "400":
+          description: Errore nell'abilitare il servizio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Impossibile abilitare il servizio"
+  /services/disable:
+    patch:
+      tags: [ServiceController]
+      responses:
+        "200":
+          description: Servizio disabilitato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Servizio disabilitato con successo"
+        "400":
+          description: Errore nel disabilitare il servizio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Impossibile disabilitare il servizio"
+
+# --------------------------------------------------------------
+# COMPONENTS
+# --------------------------------------------------------------
+
+components:
+
+  securitySchemes:
+    XAccessTokenHeaderAuth:
+      type: apiKey
+      in: cookie
+      name: x-access-token
+
+  responses:
+    BadRequest:
+      description: Dati non validi
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Token mancante o non valido
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Accesso negato
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Risorsa non trovata
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerError:
+      description: Errore interno del server
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    RegisterResponse:
+      type: object
+      properties:
+        email:
+          type: string
+        role:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        login:
+          type: boolean
+        message:
+          type: string
+        role:
+          type: string
+          nullable: true
+
+    Document:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        embedding:
+          type: number
+        metadata:
+          type: object
+          properties:
+            source:
+              type: string
+            lastUpdated:
+              type: string
+              format: date-time
+
+    DocumentCreate:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        source:
+          type: string
+
+    ChatMessageRequest:
+      type: object
+      required: [sessionId, message]
+      properties:
+        sessionId:
+          type: string
+        message:
+          type: string
+        useHybrid:
+          type: boolean
+          default: false
+
+    ChatMessageResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+
+    FeedbackRequest:
+      type: object
+      required: [feedback]
+      properties:
+        feedback:
+          type: string
+          enum: ["positive", "negative"]
+
+    FAQ:
+      type: object
+      properties:
+        _id:
+          type: string
+        question:
+          type: string
+        category:
+          type: string
+
+    FAQCreate:
+      type: object
+      required: [question, answer]
+      properties:
+        question:
+          type: string
+        category:
+          type: string
+
+    FAQUpdate:
+      type: object
+      properties:
+        question:
+          type: string
+        category:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+          nullable: true
+        details:
+          type: string
+          nullable: true
+
+    ChatMessage:
+      type: object
+      properties:
+        _id:
+          type: string
+        sessionId:
+          type: string
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        mainSource:
+          type: string
+          nullable: true
+        retrievedDocs:
+          type: array
+          items:
+            type: object
+            properties:
+              documentId:
+                type: string
+              relevanceScore:
+                type: number
+        feedback:
+          type: string
+          enum: [positive, negative]
+          nullable: true
+        comment:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    TokenErrorResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        message:
+          type: string
+
+    PromoteUserResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+          nullable: true
+
+    DemoteUserResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+          nullable: true
+
+    PublicAccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+
+    OperatorAccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+
+    AdminAccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+
+    UserProfileResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+
+    ChangePasswordResponse:
+      type: object
+      properties:
+        message:
+          type: string
