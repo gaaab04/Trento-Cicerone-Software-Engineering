@@ -169,6 +169,8 @@ paths:
 
   /access/admin/promote/{id}:
     patch:
+      security:
+      - AccessTokenAuth: []
       summary: Promuove utente a operatore
       tags: [AdminController]
       parameters:
@@ -202,6 +204,8 @@ paths:
 
   /access/admin/demote/{id}:
     patch:
+      security:
+      - AccessTokenAuth: []
       summary: Demote utente da operatore a user
       tags: [AdminController]
       parameters:
@@ -239,6 +243,8 @@ paths:
 
   /access/public:
     get:
+      security:
+      - AccessTokenAuth: []
       summary: Accesso pubblico
       tags: [RoleController]
       description: Restituisce informazioni accessibili a chiunque. Il token, se presente, viene letto dal cookie.
@@ -266,6 +272,8 @@ paths:
 
   /access/operator:
     get:
+      security:
+      - AccessTokenAuth: []
       summary: Accesso operatori e admin
       tags: [RoleController]
       description: Restituisce informazioni accessibili solo a operatori e admin. Il token viene letto dal cookie.
@@ -295,6 +303,8 @@ paths:
 
   /access/admin:
     get:
+      security:
+      - AccessTokenAuth: []
       summary: Accesso solo admin
       tags: [RoleController]
       description: Restituisce informazioni accessibili solo agli admin. Il token viene letto dal cookie.
@@ -323,6 +333,8 @@ paths:
 
   /users/me:
     get:
+      security:
+      - AccessTokenAuth: []
       summary: Profilo utente loggato
       tags: [UserController]
       description: Restituisce il profilo dell'utente autenticato tramite token presente nel cookie.
@@ -364,6 +376,8 @@ paths:
 
   /users/me/changePassword:
     put:
+      security:
+      - AccessTokenAuth: []
       summary: Cambia password
       tags: [UserController]
       description: Modifica la password dell'utente autenticato. Il token viene letto dal cookie.
@@ -422,6 +436,8 @@ paths:
 
   /documents:
     get:
+      security:
+      - AccessTokenAuth: []
       summary: Recupera documenti
       tags: [DocumentController]
       description: Restituisce tutti i documenti (embedding escluso).
@@ -463,6 +479,8 @@ paths:
                 error: "dettagli errore"
 
     post:
+      security:
+      - AccessTokenAuth: []
       summary: Aggiungi documento
       tags: [DocumentController]
       description: Crea un nuovo documento con embedding.
@@ -517,6 +535,8 @@ paths:
 
   /documents/{id}:
     put:
+      security:
+      - AccessTokenAuth: []
       summary: Aggiorna documento
       tags: [DocumentController]
       description: Aggiorna un documento esistente; l'embedding viene aggiornato se cambiano titolo o contenuto.
@@ -566,6 +586,8 @@ paths:
                 error: "dettagli errore"
 
     delete:
+      security:
+      - AccessTokenAuth: []
       summary: Elimina documento
       tags: [DocumentController]
       description: Elimina un documento esistente.
@@ -632,6 +654,8 @@ paths:
 
   /chat:
     post:
+      security:
+      - AccessTokenAuth: []
       summary: Invia messaggio
       tags: [ChatController]
       description: Invia un messaggio alla chat e riceve la risposta del bot.
@@ -667,6 +691,8 @@ paths:
 
   /chat/{sessionId}:
     get:
+      security:
+      - AccessTokenAuth: []
       summary: Cronologia chat
       tags: [ChatController]
       parameters:
@@ -703,6 +729,8 @@ paths:
 
   /chat/{messageId}/feedback:
     post:
+      security:
+      - AccessTokenAuth: []
       summary: Aggiungi feedback
       tags: [ChatController]
       parameters:
@@ -751,6 +779,8 @@ paths:
 
   /chat/session:
     post:
+      security:
+      - AccessTokenAuth: []
       summary: Crea nuova sessione
       tags: [ChatController]
       responses:
@@ -781,6 +811,9 @@ paths:
 
   /faqs:
     get:
+      security:
+      - AccessTokenAuth: []
+      summary: "Recupera le FAQs" 
       tags: [FaqController]
       responses:
         "200":
@@ -801,6 +834,9 @@ paths:
                 message: "Errore durante il recupero delle FAQ."
 
     post:
+      security:
+      - AccessTokenAuth: []
+      summary: "Inserisce una nuova FAQ" 
       tags: [FaqController]
       requestBody:
         required: true
@@ -844,6 +880,9 @@ paths:
 
   /faqs/{id}:
     put:
+      security:
+      - AccessTokenAuth: []
+      summary: "Modifica una FAQ"
       tags: [FaqController]
       parameters:
         - in: path
@@ -902,6 +941,9 @@ paths:
                 details: null
 
     delete:
+      security:
+      - AccessTokenAuth: []
+      summary: "Elimina una FAQ"
       tags: [FaqController]
       parameters:
         - in: path
@@ -946,6 +988,9 @@ paths:
 
   /service/status:
     get:
+      security:
+      - AccessTokenAuth: []
+      summary: "Recupera lo stato del servizio"
       tags: [ServiceController]
       responses:
         "200":
@@ -982,6 +1027,9 @@ paths:
  
   /services/enable:
     patch:
+      security:
+      - AccessTokenAuth: []
+      summary: "Attiva il servizio"
       tags: [ServiceController]
       responses:
         "200":
@@ -1008,6 +1056,9 @@ paths:
                 message: "Impossibile abilitare il servizio"
   /services/disable:
     patch:
+      security:
+      - AccessTokenAuth: []
+      summary: "Disattiva il servizio"
       tags: [ServiceController]
       responses:
         "200":
@@ -1040,7 +1091,7 @@ paths:
 components:
 
   securitySchemes:
-    XAccessTokenHeaderAuth:
+    AccessTokenAuth:
       type: apiKey
       in: cookie
       name: x-access-token
