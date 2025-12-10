@@ -134,20 +134,20 @@
     font-weight: 600;
     font-size: 0.8rem;
 }
-.userManagement .modalButtonsContainer {
+.modalButtonsContainer {
     display: flex;
     flex-direction: row;
     gap: 1rem;
     justify-content: center;
 }
 
-.userManagement .operationConfirmButton {
+ .operationConfirmButton {
     color: white;
     background-color: var(--color-error);
     border-radius: 15px;
 }
 
-.userManagement .operationCancelButton {
+.operationCancelButton {
     color: white;
     background-color: var(--color-primary);
     border-radius: 15px;

@@ -11,6 +11,11 @@ export async function sendMessage(req, res) {
             return res.status(400).json({ error: 'message e sessionId sono obbligatori' });
         }
 
+        // gestione del caso in cui il servizio è disattivo, si da risposta di manutenzione
+        if (req.isRagDisabled) {
+            return sendMaintenanceMessage(req, res);
+        }
+
         // recupera gli ultimi messaggi della chat
         const chatHistory = await Message.find({ sessionId })
             .sort({ createdAt: 1 })
@@ -59,6 +64,33 @@ export async function sendMessage(req, res) {
     }
 }
 
+async function sendMaintenanceMessage(req, res) {
+    const {userId} = req;
+    const {sessionId, message} = req.body;
+
+    //salva il messaggio dell'utente
+    await Message.create({
+        sessionId,
+        role: 'user',
+        userId,
+        content: message
+    });
+
+    const botMessage = await Message.create({
+        sessionId,
+        role: 'assistant',
+        userId,
+        content: req.maintenanceMessage,
+    });
+
+    return res.json({
+        messageId: botMessage._id,
+        response: req.maintenanceMessage,
+        mainSource: null,
+        sources: [],
+        searchMethod: 'disabled'
+    })
+}
 // funzione per recuperare la cronologia della chat di una sessione
 export async function getChatHistory(req, res) {
     try {

@@ -60,7 +60,7 @@
     font-size: 1rem;
 }
 
-.mainDashboardView .widgetService .widgetState {
+.mainDashboardView .widgetService .widgetActiveState {
     display: flex;
     flex:1;
     align-items: center;
@@ -69,6 +69,18 @@
     font-size: 1.4rem;
     font-weight: bold;
     color: var(--color-success);
+    margin: 1rem 0;
+}
+
+.mainDashboardView .widgetService .widgetDisabledState {
+    display: flex;
+    flex:1;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--color-error);
     margin: 1rem 0;
 }
 

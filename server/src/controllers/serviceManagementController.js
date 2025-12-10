@@ -29,7 +29,7 @@ export const enableRagService = async (req, res) => {
 
         console.error("Errore nell'abilitare il servizio", error);
 
-        return res.status(400).json({
+        return res.status(500).json({
             message: "Impossibile abilitare il servizio"
         });
     }
@@ -49,7 +49,7 @@ export const disableRagService = async (req, res) => {
     } catch (error) {
 
         console.error("Errore nel disabilitare il servizio", error);
-        return res.status(400).json({
+        return res.status(500).json({
             message: "Impossibile disabilitare il servizio"
         });
     }
