@@ -11,6 +11,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ["user", "operator", "admin"],
         default: "user"
+    },
+    suspended: {
+        type: Boolean,
+        default: false
     }
 });
 

@@ -22,7 +22,7 @@ class GeminiService {
         this.model = this.genAI.getGenerativeModel({
             model: 'gemini-2.5-flash-lite',
             generationConfig: {
-                temperature: 0.5, // quantità di fantasia - precisione, TODO forse andrebbe alzato
+                temperature: 0.6, // quantità di fantasia - precisione, TODO forse andrebbe alzato
                 topP: 0.9, // limita la scelta ai token più probabili
                 topK: 40, // determina quanti token vengono considerati
                 maxOutputTokens: 1024, //lunghezza massima della risposta
@@ -32,6 +32,8 @@ class GeminiService {
         // genera 768 dimensioni, quindi ho settato atlas a numDimensions = 768 perché devono essere uguali
         this.embeddingModel = this.genAI.getGenerativeModel({
             model: 'text-embedding-004'
+            //text-embedding-004
+            // gemini-embedding-001
         });
 
         console.log("Gemini è pronto");
@@ -57,6 +59,8 @@ class GeminiService {
             }
             // qui tronco la lunghezza del testo a 10.000 caratteri perché penso sia il limite di gemini
             const trucatedText = text.slice(0, 10000);
+
+
             // qui si richiede l'embedding al modello
             const result = await this.embeddingModel.embedContent(trucatedText);
             const embedding = result.embedding.values;
@@ -70,7 +74,12 @@ class GeminiService {
     async generateContextualResponse(userQuery, relevantDocs, chatHistory = []) {
         // questa è la parte di costruzione del contesto dei documenti
         const context = relevantDocs
-            .map((doc, index) => `documento ${index+1}: ${doc.documentId}: ${doc.title}`)
+            .map((doc, index) => `
+            Documento ${index+1}: ${doc._id}: 
+            Titolo: ${doc.title}
+            Categoria: ${doc.category}
+            Contenuto: ${doc.content}`
+            )
             .join("\n\n---\n\n");
 
         // storico conversazione (prende gli ultimi 5 messaggi
@@ -82,15 +91,18 @@ class GeminiService {
             : 'Prima interazione';
         // prompt principale
         const prompt =
-            `Sei un assistente virtuale esperto su Trento, in Italia. 
+            `Sei un assistente virtuale esperto sulla città di Trento, in Italia.
+             
             COMPITO:
-            Rispondi alla domanda dell'utente usando principalmente i documenti forniti.
-            - Se i documenti contengono la risposta esatta usala
-            - Se i documenti contengono informazioni parziali, combina le informazioni in modo intelligente ma senza citare il numero di documento
-            - Se menzioni date approssimative (come ad esempio XIII secolo), spiega che è circa quel periodo
-            - Rispondi in modo naturale, amichevole e informativo
-            - Se i documenti non sono rilevanti, dillo chiaramente e suggerisci argomenti su cui puoi aiutare
-           
+            1. Rispondi alla domanda dell'utente usando principalmente i documenti forniti.
+            2. Se i documenti contengono la risposta esatta usala, oppure usala in parte se pensi sia sufficiente. 
+            3. Se i documenti contengono informazioni parziali, combina le informazioni in modo intelligente
+            4.  Se menzioni date approssimative (come ad esempio XIII secolo), spiega che è circa quel periodo
+            5.  Rispondi in modo naturale, amichevole e informativo
+            7. Se conosci la risposta, rispondi in modo chiaro, naturale, amichevole e informativo 
+            8. Se non conosci la risposta, rispondi chiaramente che non hai informazioni disponibili su quell'argomento e suggerisci eventuali temi correlati su cui puoi aiutare.
+            9. Non menzionare mai di leggere documenti o fonti esterne.
+            10. Mantieni la risposta coerente e concisa, evitando di inventare dati.
             
             DOCUMENTI RILEVANTI: 
             ${context}
@@ -98,9 +110,11 @@ class GeminiService {
             STORICO CONVERSAZIONE: 
             ${historyText}
             
-            DOMANDA ATTUALE: ${userQuery}
+            DOMANDA ATTUALE: 
+            ${userQuery}
             
-            RISPOSTA: Deve essere chiara e utile. Se l'utente comunica in una lingua che non sia in italiano, rispondi in quella lingua`;
+            RISPOSTA: 
+            Rispondi nella stessa lingua in cui l'utente ha scritto la domanda`;
 
         return await this.generateResponse(prompt);
     }

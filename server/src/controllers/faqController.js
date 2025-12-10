@@ -119,3 +119,13 @@ export const deleteFaq = async (req, res) => {
         return res.status(500).json({ message: "Errore durante l'eliminazione della FAQ", error: error.message });
     }
 };
+
+// funzione che restituisce tutte le categorie ammesse dal modello faq
+export const getCategories = async (req, res) => {
+    try {
+        const categories = await FaqModel.schema.path("category").enumValues;
+        return res.status(200).json(categories);
+    } catch (error) {
+        return res.status(500).json({ message: "Errore durante il recupero delle categorie." });
+    }
+}

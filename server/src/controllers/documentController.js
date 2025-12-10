@@ -1,6 +1,7 @@
 import geminiService from "../services/geminiService.js";
 import Document from "../models/Document.js";
 
+// funzione per aggiungere un documento json
 export async function addDocument(req, res) {
     try {
         const  {title, content, category, source} = req.body;
@@ -42,6 +43,7 @@ export async function addDocument(req, res) {
     }
 }
 
+// funzione per aggiornare un documento json
 export async function updateDocument (req, res) {
     try {
         const id = req.params.id;
@@ -95,7 +97,7 @@ export async function updateDocument (req, res) {
     }
 }
 
-
+// funzione per eliminare un documento json
 export async function deleteDocument(req, res) {
     try {
         const documentId = req.params.id;
@@ -113,12 +115,24 @@ export async function deleteDocument(req, res) {
     }
 }
 
-
+// funzione per recuperare tutti i documenti json presenti nel db
 export async function getDocuments (req, res) {
     try {
-        const documents = await Document.find({}, {embedding: 0});
+        const documents = await Document.find({}, {embedding: 0}).sort({updatedAt: -1});
         return res.status(200).json(documents);
     }   catch (error) {
         return res.status(500).json({message: "Errore nel server", error: error.message});
+    }
+
+
+}
+
+// funzione che restituisce tutte le categorie
+export const getCategories = async (req, res) => {
+    try {
+        const categories = await Document.schema.path("category").enumValues;
+        return res.status(200).json(categories);
+    } catch (error) {
+        return res.status(500).json({ message: "Errore durante il recupero delle categorie." });
     }
 }

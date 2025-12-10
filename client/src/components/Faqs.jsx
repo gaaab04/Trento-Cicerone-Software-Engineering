@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
 import "../styles/Faqs.css";
 import {API} from "../api.js";
+import axios from "axios";
 
 function Faqs({setMessage}) {
-    // lista di FAQs da mostrare in caso di errori nel caricamento dal database
+    // lista di faqs da mostrare in caso di errori con la chiamata al server
     const defaultFaqs = [
         "Come funziona la raccolta differenziata a Trento?",
         "Qual è il numero dell'ufficio del Comune?",
@@ -16,15 +17,11 @@ function Faqs({setMessage}) {
     useEffect(() => {
         const fetchFaqs = async () => {
             try {
-                const response = await fetch(`${API}/api/faqs`, {
-                    credentials: 'include'
-                });
-                if (!response.ok) {
-                    throw new Error('Errore nel caricamento delle FAQ');
-                }
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    setFaqs(data);
+                const response = await axios.get(`${ API }/api/faqs`, {withCredentials: true});
+
+                // aggiorna lo stato solo se il server ha restituito i dati richiestu
+                if (response.data && response.data.length > 0) {
+                    setFaqs(response.data);
                 }
             } catch (error) {
                 console.error('Errore nel caricamento delle FAQ:', error.message);
@@ -35,6 +32,7 @@ function Faqs({setMessage}) {
         fetchFaqs();
     }, [])
 
+    // se le faqs si stanno caricando viene mostrato questo messaggio
     if (loading) return <div className="faqsContent">Caricamento FAQ in corso...</div>;
 
     return (

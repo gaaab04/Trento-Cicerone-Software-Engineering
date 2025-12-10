@@ -1,0 +1,117 @@
+.faqsManagement {
+    padding: 2rem;
+    width: 100%;
+    color: black;
+}
+
+.faqsManagement h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: black;
+}
+
+.faqsManagement .faqsMainwrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.faqsMainwrapper .activeFaqs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: white;
+    border-radius: 20px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.faqsMainwrapper .faqsWidgetMainTitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.activeFaqs .faqsList {
+    display: flex;
+    flex-direction: row;
+    background-color: #f9f9f9;;
+    border-radius: 30px;
+    padding: 0 1rem;
+    margin-top: 1rem;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.faqsList .faqsText {
+    font-size: 1rem;
+    color: black;
+    opacity: 1;
+}
+
+.faqsList .faqsButtons {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+}
+
+.editFaqButton, .deleteFaqButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    align-self: center;
+    justify-self: flex-end;
+}
+
+.faqsManagement .addFaqs {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 20px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.3);
+}
+
+.faqsManagement .addFaqFormAndCategory {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+}
+
+.addFaqFormAndCategory input {
+    width: 100%;
+}
+
+.addFaqFormAndCategory select {
+    background-color: #f9f9f9;
+    border: 1px solid var(--color-text-secondary);
+    color: black;
+}
+
+.addFaqForm button {
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.addFaqForm button:hover {
+    background-color: var(--color-text-secondary);
+    border: 1px solid var(--color-text-secondary);
+}
+
+.faqsButtons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.faqsButtons button:hover {
+
+        opacity: 1;
+        transform: scale(1.1);
+        rotate: -10deg;
+
+}

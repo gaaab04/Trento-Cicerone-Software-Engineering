@@ -5,7 +5,7 @@ const FaqSchema = new mongoose.Schema({
     question: { type: String, required: true, maxlength: 200 },
     category: {
         type: String,
-        enum: ["Trasporti", "Eventi", "Cultura", "Rifiuti", "Anagrafe", "Servizi comunali", "Generale"],
+        enum: ["Trasporti", "Eventi", "Cultura", "Rifiuti", "Anagrafe", "Servizi comunali", "Storia", "Generale"],
         default: "Generale"
     }
 });

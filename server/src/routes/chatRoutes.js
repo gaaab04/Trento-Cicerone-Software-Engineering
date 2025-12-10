@@ -1,5 +1,10 @@
 import express from 'express';
-import {sendMessage, getChatHistory, addFeedback, createSession} from '../controllers/chatController.js';
+import {
+    sendMessage,
+    getChatHistory,
+    addFeedback,
+    createSession,
+} from '../controllers/chatController.js';
 import {verifyUser} from "../middleware/authMiddleware.js";
 import {permit} from "../middleware/roleMiddleware.js";
 
@@ -18,7 +23,6 @@ router.post('/:messageId/feedback', verifyUser, permit("user", "operator", "admi
 
 // GET /api/chat/:sessionId - recupera storico (permesso a operatori e admin)
 router.get('/:sessionId', verifyUser, permit("operator", "admin"), getChatHistory);
-
 
 
 export default router;

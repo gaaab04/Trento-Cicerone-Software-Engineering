@@ -4,6 +4,7 @@ import ragService from '../services/ragService.js';
 // funzione per invio messaggio
 export async function sendMessage(req, res) {
     try {
+        const userId = req.userId;
         const { sessionId, message, useHybrid = false } = req.body;
 
         if (!sessionId || !message) {
@@ -23,6 +24,7 @@ export async function sendMessage(req, res) {
         await Message.create({
             sessionId,
             role: 'user',
+            userId,
             content: message
         });
 
@@ -36,6 +38,7 @@ export async function sendMessage(req, res) {
         const botMessage = await Message.create({
             sessionId,
             role: 'assistant',
+            userId,
             content: result.response,
             mainSource: result.mainSource,
             retrievedDocs
@@ -108,10 +111,10 @@ export async function addFeedback(req, res) {
     }
 }
 
-
+// funzione per creare un codice sessione
 export async function createSession(req, res) {
     try {
-        // genera un id univoco per la sessione, in questo caso viene usato il timestamp corrente ma se volessimo potremmo usare un id generato dal server, però bisognerebbe creare un altro modello solo per il counter
+        // genera un id unico per la sessione, in questo caso viene usato il timestamp corrente ma se volessimo potremmo usare un id generato dal server, però bisognerebbe creare un altro modello solo per il counter
         const sessionId = `session-${Date.now()}`;
         return res.json({ sessionId });
     } catch (error) {
@@ -119,3 +122,4 @@ export async function createSession(req, res) {
         return res.status(500).json({message:"Errore del server",  error: error.message });
     }
 }
+

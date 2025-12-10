@@ -1,7 +1,13 @@
 import express from 'express';
 import {verifyUser} from "../middleware/authMiddleware.js";
 import {permit} from "../middleware/roleMiddleware.js";
-import {addDocument, deleteDocument, getDocuments, updateDocument} from "../controllers/documentController.js";
+import {
+    addDocument,
+    deleteDocument,
+    getCategories,
+    getDocuments,
+    updateDocument
+} from "../controllers/documentController.js";
 
 const router = express.Router();
 
@@ -16,4 +22,7 @@ router.delete('/:id', verifyUser, permit( "operator", "admin"), deleteDocument);
 
 // GET /api/documents
 router.get('/', verifyUser, permit( "operator", "admin"), getDocuments);
+
+// GET /api/documents/categories
+router.get('/categories', verifyUser, permit( "operator", "admin"), getCategories);
 export default router;
