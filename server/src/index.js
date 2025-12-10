@@ -34,7 +34,7 @@ app.use('/api', authRoutes)
 app.use('/api/access', roleRoutes)
 
 //rotte per gli admin
-app.use('/api/access/admin', adminRoutes)
+app.use('/api/admin', adminRoutes)
 
 //rotte per le faq
 app.use('/api/faqs', faqRoutes);
