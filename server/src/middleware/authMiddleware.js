@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
+import UserModel from "../models/User.js";
 
 // middleware per la verifica che l'utente sia autenticato
-export const verifyUser = (req, res, next) => {
+export const verifyUser = async (req, res, next) => {
     //prende il token dal cookie
     const accessToken = req.cookies.accessToken;
     //se non esiste, ritorna un errore 401
@@ -13,6 +14,18 @@ export const verifyUser = (req, res, next) => {
         //decodifica e verifica il token usando la chiave
         const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
 
+        // trova utente
+        const user = await UserModel.findById(decoded.userId);
+
+        // se l'utente non viene trovato ritorna messaggio di errore
+        if (!user) {
+            return res.status(401).json({valid: false, message:"utente non trovato"})
+        }
+
+        // se l'utente è sospeso torna messaggio di errore
+        if (user.suspended) {
+            return res.status(403).json({ valid: false, message: "L'account è sospeso" });
+        }
         //aggiunge le info utili all'oggetto req per poterli usare dopo
         req.userId = decoded.userId;
         req.email = decoded.email;

@@ -1,5 +1,5 @@
 import express from 'express';
-import connectDB from './db.js'; // Importing the connectDB function
+import connectDB from './db.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
@@ -9,8 +9,10 @@ import adminRoutes from "./routes/adminRoutes.js";
 import faqRoutes from './routes/faqRoutes.js';
 import chatRoutes from "./routes/chatRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 import ragServiceRoutes from './routes/serviceManagementRoutes.js';
 import serviceStatusManager from './services/serviceStatusManager.js';
+
 
 const app = express();
 
@@ -34,7 +36,7 @@ app.use('/api', authRoutes)
 app.use('/api/access', roleRoutes)
 
 //rotte per gli admin
-app.use('/api/access/admin', adminRoutes)
+app.use('/api/admin', adminRoutes)
 
 //rotte per le faq
 app.use('/api/faqs', faqRoutes);
@@ -47,6 +49,9 @@ app.use('/api/chat', chatRoutes);
 
 //rotte per i documenti
 app.use('/api/documents', documentRoutes);
+
+//rotte per la dashboard
+app.use('/api/dashboard', dashboardRoutes);
 
 //rotte per lo stato del servizio
 app.use('/api/services', ragServiceRoutes);

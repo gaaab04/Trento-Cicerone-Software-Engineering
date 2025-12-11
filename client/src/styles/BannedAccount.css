@@ -1,0 +1,55 @@
+@import "colors.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.bannedAccount {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-primary);
+    align-items: center;
+    overflow: hidden;
+}
+
+.bannedAccount .appLogo {
+    justify-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 40vh;
+
+}
+
+.bannedAccount .appLogo p {
+    font-size: 6rem;
+}
+
+.bannedAccount .appLogo p {
+    color: var(--color-text);
+}
+
+
+.bannedAccount h3 {
+    color: white;
+    font-size: 3rem;
+}
+
+.bannedAccount p {
+    font-size: 2rem;
+}
+
+@media (max-width: 800px) {
+    .bannedAccount .appLogo p {
+        font-size: 3rem;
+    }
+
+    .bannedAccount h3 {
+        font-size: 1.5rem;
+    }
+
+    .bannedAccount p {
+        font-size: 1.2rem;
+    }
+}

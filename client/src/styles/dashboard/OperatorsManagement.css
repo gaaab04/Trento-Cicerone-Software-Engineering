@@ -1,0 +1,88 @@
+@import "../colors.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.operatorsManagement {
+    padding: 2rem;
+    width: 100%;
+    color: black;
+}
+
+.operatorsManagement h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: black;
+}
+
+.operatorsManagement p, .operatorsManagement a, .operatorsManagement h3, .operatorsManagement button {
+    font-family: 'Inter', sans-serif;
+}
+
+.operatorsManagement .operatorsMainWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.operatorsManagement .widgetTitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.operatorsManagement .promoteOrDemoteSection, .operatorsManagement .activeOperatorsAndAdmins {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.2);
+}
+
+.operatorsManagement .promoteOrDemote {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5rem;
+}
+
+.operatorsManagement .promoteOrDemoteButtons {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.operatorsManagement .promoteOrDemote input{
+    width: 600px;
+}
+
+
+.operatorsManagement .promoteOrDemote button{
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 15px;
+    width: 200px;
+}
+
+.operatorsManagement .operatorOrAdminEntity {
+    border-bottom: 2px solid var(--color-primary);
+
+}
+
+
+.operatorsManagement .operatorsAdminsList {
+    display: flex;
+    flex-direction: column;
+    padding: 0 1rem;
+}
+.operatorsManagement .userMail {
+    font-size: 1rem;
+    color: black;
+}
+
+.operatorsManagement .userRole {
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    font-weight: 600;
+}

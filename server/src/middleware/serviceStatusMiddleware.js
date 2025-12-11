@@ -1,18 +1,26 @@
-import ServiceStatusManager from "../services/serviceStatusManager.js";
+import mongoose from "mongoose";
+import serviceStatusManager from "../services/serviceStatusManager.js";
+import ServiceModel from "../models/ServiceStatus.js";
+import message from "../models/Message.js";
 
 //Verifica lo stato del servizio
-export const verifyRagStatus = (req, res, next) => {
-    try{
-        //Istanzia la classe ServiceStatusManager e controlla lo stato del servizio
-        const serviceStatus = new ServiceStatusManager();
-        const isRagEnabled = serviceStatus.isRagEnabled();
-        //Se il servizio non è attivo, blocca la richiesta
-        if(!isRagEnabled){
-            return res.status(503).json({isRagEnabled:false, message:"Il servizio non è attivo"});
+export const verifyRagStatus = async (req, res, next) => {
+    try {
+
+        //controlla lo stato del servizio utilizzando la classe importata
+        const isRagEnabled = serviceStatusManager.isRagEnabled();
+
+        const statusRag = await ServiceModel.findOne({});
+
+        // se il servizio non è attivo, salvo il req nel messaggio
+        if (isRagEnabled === false) {
+            req.isRagDisabled = true;
+            req.maintenanceMessage = statusRag.maintenanceMessage;
         }
-        //Se il servizio è attivo
+
         next();
-    } catch (error){
+
+    } catch (error) {
         console.error("Errore del server (verifyRagStatus)", error);
     }
 }  

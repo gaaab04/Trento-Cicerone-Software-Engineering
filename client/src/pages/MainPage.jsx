@@ -7,6 +7,7 @@ import {API} from "../api.js";
 import {useEffect, useState} from "react";
 import "../styles/MainPage.css"
 import {useNavigate} from "react-router-dom";
+import BannedAccount from "../components/BannedAccount.jsx";
 
 function MainPage() {
     const navigate = useNavigate(); // serve per la navigazione tra le pagine
@@ -14,6 +15,7 @@ function MainPage() {
     const [messages, setMessages] = useState([]);
     const [isChatting, setIsChatting] = useState(false);
     const [sessionId, setSessionId] = useState(null);
+    const [isBanned, setIsBanned] = useState(false);
 
     // verifica che l'utente sia loggato
     useEffect(() => {
@@ -28,6 +30,8 @@ function MainPage() {
                     } catch {
                         navigate('/login');
                     }
+                } else if (err.response && err.response.status === 403) {
+                    setIsBanned(true);
                 } else {
                     navigate('/login');
                 }
@@ -38,6 +42,10 @@ function MainPage() {
 
     // genera un codice sessione quando viene caricata la pagina
     useEffect(() => {
+
+        // evita di creare codice sessione se l'utente è bannato
+        if (isBanned) return;
+
         const createSession = async () => {
             try {
                 const res = await axios.get(`${API}/api/chat/session`, { withCredentials: true });
@@ -87,6 +95,12 @@ function MainPage() {
             });
 
         } catch (error) {
+            // controlla se l'errore è un ban
+            if (error.response && error.response.status === 403) {
+                setIsBanned(true);
+                return;
+            }
+
             console.error('Errore durante l\'invio del messaggio:', error);
 
             // stesso pattern per l'errore
@@ -97,6 +111,12 @@ function MainPage() {
             });
         }
     };
+
+    if (isBanned) {
+        return (
+            <BannedAccount />
+        )
+    }
 
     return (
         <div className="mainContainer">

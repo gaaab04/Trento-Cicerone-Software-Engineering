@@ -1,0 +1,173 @@
+@import "../colors.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.feedbackRevision {
+    padding: 2rem;
+    width: 100%;
+    color: black;
+}
+
+.feedbackRevision h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: black;
+}
+
+.feedbackRevision p {
+    font-family: 'Inter', sans-serif;
+}
+
+.feedbackRevision .feedbackRevisionMainWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.feedbackRevision .filtersSection {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+
+.feedbackRevision .filtersSection button {
+    border: 2px solid var(--color-primary);
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    background-color: #f9f9f9;
+    color: var(--color-primary);
+    transition: 0.3s ease-in-out;
+    font-weight: 500;
+    width: 7.5rem;
+    border-radius: 30px;
+}
+
+.feedbackRevision .filtersSection input {
+    background-color: #f9f9f9;
+    width: 7.5rem;
+    font-size: 0.75rem;
+    border: 2px solid var(--color-primary);
+    transition: 0.3s ease-in-out;
+}
+
+.feedbackRevision .filtersSection input:hover {
+    background-color: var(--color-primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+.feedbackRevision .filtersSection button:hover {
+    background-color: var(--color-primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+.feedbackRevision .filtersSection select {
+    background-color: #f9f9f9;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: 0.3s ease-in-out;
+}
+
+.feedbackRevision .filtersSection select:hover {
+    background-color: var(--color-primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+
+.feedbackRevision .feedbackEntity {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: white;
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.2);
+    border-radius: 25px;
+    padding: 1rem;
+}
+
+.feedbackRevision .feedbackEntityInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    height: 100%;
+}
+
+.feedbackRevision .feedbackEntityInfo p {
+    font-size: 0.8rem;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.feedbackRevision .feedbackEntityContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 1rem
+}
+
+.feedbackRevision .feedbackEntityContentTitle {
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 1.2rem;
+}
+
+.feedbackRevision .feedbackEntityContentBody {
+    justify-content: center;
+    justify-items: center;
+    text-align: center;
+    height: auto;
+}
+
+.feedbackEntitySeeMore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+}
+
+.feedbackEntitySeeMore button {
+    background-color: transparent;
+    height: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease-in-out;
+    border: none;
+}
+
+.feedbackEntitySeeMore button:hover {
+    transform: scale(1.1);
+    border: none;
+}
+
+.feedbackEntitySeeMore button img {
+    transform: scale(0.8)
+}
+
+.feedbackEntitySeeMore p {
+    color: var(--color-primary);
+    font-size: 0.8rem;
+}
+
+.fbChatContainer  {
+    width:100%;
+    display: flex;
+    flex-direction:column;
+    height:100%;
+    overflow-y:auto;
+    gap: 1rem;
+}

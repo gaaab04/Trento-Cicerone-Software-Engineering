@@ -11,6 +11,11 @@ const messageSchema = new mongoose.Schema({
         enum: ['user', 'assistant'],
         required: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        index: true
+    },
     content: {
         type: String,
         required: true
@@ -29,5 +34,7 @@ const messageSchema = new mongoose.Schema({
         default: ''
     }
 }, { timestamps: true});
+
+messageSchema.index({userId: 1, createdAt: -1})
 
 export default mongoose.model('Message', messageSchema);

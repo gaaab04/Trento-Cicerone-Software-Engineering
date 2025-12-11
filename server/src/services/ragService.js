@@ -38,7 +38,7 @@ class RAGService {
                                     new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
                                 ]
                             },
-                            then: 1.2,   // documento recente → più importante
+                            then: 1.2,   // documento recente più importante
                             else: 1.0
                         }
                     }
@@ -85,7 +85,7 @@ class RAGService {
 
         } catch (error) {
             console.error("Errore nella ricerca vettoriale:", error);
-            console.warn("➡️ Eseguo ricerca di fallback...");
+            console.warn("Eseguo ricerca di fallback...");
             return this.fallbackSearch(query, limit);
         }
     }

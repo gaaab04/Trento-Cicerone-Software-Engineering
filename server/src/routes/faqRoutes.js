@@ -1,5 +1,5 @@
 import express from 'express';
-import { getFaqs, createFaq, updateFaq, deleteFaq } from '../controllers/faqController.js';
+import {getFaqs, createFaq, updateFaq, deleteFaq, getCategories} from '../controllers/faqController.js';
 import { verifyUser } from '../middleware/authMiddleware.js';
 import { permit } from '../middleware/roleMiddleware.js';
 
@@ -11,6 +11,9 @@ const router = express.Router();
 
 // READ ALL: GET /api/faqs, rotta aperta a tutti
 router.get('/', verifyUser, permit("user", "operator", "admin"), getFaqs);
+
+// GET /api/faqs/categories, rotta aperta a operatori e admin
+router.get('/categories', verifyUser, permit( "operator", "admin"), getCategories);
 
 // CREATE: POST /api/faqs, rotta apera solo per operatori e admin
 router.post('/', verifyUser, permit("operator", "admin"), createFaq);

@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import OperatorDashboard from "./pages/OperatorDashboard.jsx";
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/dashboard" element={<OperatorDashboard />} />
             </Routes>
         </Router>
     );

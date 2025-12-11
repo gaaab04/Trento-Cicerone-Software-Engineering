@@ -1,5 +1,5 @@
 :root {
-    --color-primary: rgba(44, 62, 80, 0.8);
+    --color-primary: #546371;
     /* tono principale, è quello usato nella navbar e nell'input box */
     --color-secondary: #4D5061;
     /* usato per messaggi bot */

@@ -1,0 +1,167 @@
+@import "../colors.css";
+
+/* --- SIDEBAR DESKTOP --- */
+.sidebar {
+    background-color: var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100vh;
+    width: 350px;
+    transition: transform 0.3s ease;
+    position: fixed;
+}
+
+.sidebar .appLogo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 5rem;
+}
+
+.sidebar .appLogo p {
+    color: white;
+}
+
+.sidebar .appLogo .titoloAppText1 {
+    font-size: 2.2rem;
+}
+
+.sidebar .appLogo .titoloAppText2 {
+    font-size: 1.4rem;
+}
+
+.sidebar .sidebarLinks {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sidebar li {
+    padding-left: 1rem ;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.sidebar .profileLink {
+    color: white;
+    font-weight: normal;
+}
+
+.sidebar li:hover {
+    background-color: var(--color-secondary);
+}
+
+/* Bottone X per chiudere la sidebar su mobile */
+.close-sidebar-btn {
+    display: none;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: white;
+    border: none;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* --- TOPBAR per iPad e mobile --- */
+.topbar-mobile {
+    display: none;
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--color-primary);
+    color: white;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.topbar-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.hamburgerButton {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Overlay scuro */
+.sidebar-overlay {
+    display: none;
+}
+
+/* --- MEDIA QUERY per iPad e mobile --- */
+@media screen and (max-width: 1024px) {
+    /* Mostra topbar */
+    .topbar-mobile {
+        display: flex;
+    }
+
+    /* Nascondi sidebar di default e posizionala dall'alto */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        transform: translateY(-100%);
+        z-index: 1001;
+    }
+
+    /* Mostra il bottone X su mobile */
+    .close-sidebar-btn {
+        background: none;
+        display: block;
+    }
+
+    /* Sidebar aperta */
+    .sidebar.sidebar-open {
+        transform: translateY(0);
+    }
+
+    /* Overlay quando sidebar è aperta */
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+}
+
+.sidebarLinks li.active {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    width: 100%;
+    height: 40px;
+}

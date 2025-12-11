@@ -4,10 +4,16 @@ import ragService from '../services/ragService.js';
 // funzione per invio messaggio
 export async function sendMessage(req, res) {
     try {
+        const userId = req.userId;
         const { sessionId, message, useHybrid = false } = req.body;
 
         if (!sessionId || !message) {
             return res.status(400).json({ error: 'message e sessionId sono obbligatori' });
+        }
+
+        // gestione del caso in cui il servizio è disattivo, si da risposta di manutenzione
+        if (req.isRagDisabled) {
+            return sendMaintenanceMessage(req, res);
         }
 
         // recupera gli ultimi messaggi della chat
@@ -23,6 +29,7 @@ export async function sendMessage(req, res) {
         await Message.create({
             sessionId,
             role: 'user',
+            userId,
             content: message
         });
 
@@ -36,6 +43,7 @@ export async function sendMessage(req, res) {
         const botMessage = await Message.create({
             sessionId,
             role: 'assistant',
+            userId,
             content: result.response,
             mainSource: result.mainSource,
             retrievedDocs
@@ -56,6 +64,33 @@ export async function sendMessage(req, res) {
     }
 }
 
+async function sendMaintenanceMessage(req, res) {
+    const {userId} = req;
+    const {sessionId, message} = req.body;
+
+    //salva il messaggio dell'utente
+    await Message.create({
+        sessionId,
+        role: 'user',
+        userId,
+        content: message
+    });
+
+    const botMessage = await Message.create({
+        sessionId,
+        role: 'assistant',
+        userId,
+        content: req.maintenanceMessage,
+    });
+
+    return res.json({
+        messageId: botMessage._id,
+        response: req.maintenanceMessage,
+        mainSource: null,
+        sources: [],
+        searchMethod: 'disabled'
+    })
+}
 // funzione per recuperare la cronologia della chat di una sessione
 export async function getChatHistory(req, res) {
     try {
@@ -108,10 +143,10 @@ export async function addFeedback(req, res) {
     }
 }
 
-
+// funzione per creare un codice sessione
 export async function createSession(req, res) {
     try {
-        // genera un id univoco per la sessione, in questo caso viene usato il timestamp corrente ma se volessimo potremmo usare un id generato dal server, però bisognerebbe creare un altro modello solo per il counter
+        // genera un id unico per la sessione, in questo caso viene usato il timestamp corrente ma se volessimo potremmo usare un id generato dal server, però bisognerebbe creare un altro modello solo per il counter
         const sessionId = `session-${Date.now()}`;
         return res.json({ sessionId });
     } catch (error) {
@@ -119,3 +154,4 @@ export async function createSession(req, res) {
         return res.status(500).json({message:"Errore del server",  error: error.message });
     }
 }
+

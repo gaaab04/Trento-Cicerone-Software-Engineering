@@ -1,0 +1,124 @@
+@import "../colors.css";
+
+.mainDashboardView {
+    padding: 2rem;
+    width: 100%;
+}
+
+.mainDashboardView h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: black;
+}
+
+.mainDashboardView .dashboardMainwrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.mainDashboardView .widget {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.2);
+}
+
+.mainDashboardView .widgetTitle {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: black;
+}
+
+.mainDashboardView  .widgetRedirect {
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    align-self: center;
+    transition: color 0.3s ease-in-out;
+}
+
+.mainDashboardView .widgetRedirect:hover {
+    color: var(--color-text-secondary);
+}
+
+
+.mainDashboardView .widgetFeedback .widgetContent {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-bottom: 1rem;
+    color: black;
+}
+
+.mainDashboardView .widgetFeedback .widgetStat {
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.mainDashboardView .widgetService .widgetActiveState {
+    display: flex;
+    flex:1;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--color-success);
+    margin: 1rem 0;
+}
+
+.mainDashboardView .widgetService .widgetDisabledState {
+    display: flex;
+    flex:1;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--color-error);
+    margin: 1rem 0;
+}
+
+.mainDashboardView .widgetService p:last-child {
+    margin-top: auto;
+    align-self: center;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.mainDashboardView .widgetService p:last-child:hover {
+    color: var(--color-text-secondary);
+}
+
+.mainDashboardView .widgetQuestions {
+    grid-column: span 2;
+}
+
+.mainDashboardView .widgetQuestions .widgetContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    color: black;
+}
+
+.mainDashboardView .widgetQuestions .widgetContent p {
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .mainDashboardView .dashboardMainwrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .mainDashboardView .widgetQuestions {
+        grid-column: span 1;
+    }
+}
