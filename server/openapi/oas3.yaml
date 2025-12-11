@@ -150,7 +150,7 @@ paths:
         "401":
           description: Token mancante, non valido o scaduto
           content:
-            application/json:
+            application/json: 
               schema:
                 $ref: "#/components/schemas/TokenErrorResponse"
               examples:
