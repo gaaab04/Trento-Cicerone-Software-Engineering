@@ -53,8 +53,14 @@ paths:
                   value:
                     message: "Email già in uso"
         "500":
-          $ref: "#/components/responses/ServerError"
-
+          description: Errore interno nel server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/ServerError"
+              example:
+                message: Errore del server 
+                error: dettagli errore
   /login:
     post:
       summary: Login utente
@@ -87,7 +93,14 @@ paths:
                     login: false
                     message: "la password non corrisponde"
         "500":
-          $ref: "#/components/responses/ServerError"
+          description: Errore interno nel server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/ServerError"
+              example:
+                  message: Errore del server 
+                  error: dettagli errore
 
   /logout:
     post:
@@ -166,6 +179,36 @@ paths:
   # --------------------------------------------------------------
   # ADMIN
   # --------------------------------------------------------------
+
+  /admin/operators:
+    get:
+      security:
+        - AccessTokenAuth: []
+      summary: Recupera operatori ed admin
+      tags: [AdminController]
+      description: Recupera gli operatori e gli admin attualmente attivi
+      responses: 
+        "200":
+          description: Lista operatori ed admin
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                $ref: "#/components/schemas/UserProfileResponse"
+              example:
+                _id: 123456
+                example: "user@example.com"
+                role: "user"
+        "500":
+          description: "Errore interno del server" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore nel server"
+                error: "dettagli errore"
 
   /access/admin/promote/{id}:
     patch:
@@ -373,6 +416,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server durante il recupero del profilo."
+                error: "dettagli errore"
 
   /users/me/changePassword:
     put:
@@ -387,6 +431,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ChangePasswordRequest"
+            example:
+              oldPassword: "Password123"
+              newPassword: "Password456"
       responses:
         "200":
           description: Password modificata con successo
@@ -428,7 +475,366 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server durante la modifica della password."
+                error: dettagli errori
 
+  /users/{id}/suspend:
+    patch:
+      security:
+        - AccessTokenAuth: []
+      summary: Sospende usando l'Id
+      tags: [UserController]
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      description: Sospende un utente specificato dall'id
+      responses:
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "utente non trovato"
+        "403":
+          description: Impossibile sospendere l'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Non puoi sospendere un admin o un operatore"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
+                error: "dettagli errore"
+        "200":
+          description: "Utente sospeso"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      suspended:
+                        type: boolean
+              example:
+                message: Utente sospeso con successo
+                user:
+                  _id: "64f8a2c123abc456def78901"
+                  email: "utente@example.com"
+                  suspended: true
+
+  /users/{id}/unsuspend:
+      patch:
+        security:
+          - AccessTokenAuth: []
+        summary: Riattiva un utente usando l'Id
+        tags: [UserController]
+        parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        description: Riattiva un utente specificato dall'id
+        responses:
+          "404":
+            description: Utente non trovato
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+                example:
+                  message: "utente non trovato"
+          "500":
+            description: Errore interno del server
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+                example:
+                  message: "Errore del server"
+                  error: "dettagli errore"
+          "200":
+            description: "Utente sospeso"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    user:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        email:
+                          type: string
+                          format: email
+                        suspended:
+                          type: boolean
+                example:
+                  message: Utente riattivato con successo
+                  user:
+                    _id: "64f8a2c123abc456def78901"
+                    email: "utente@example.com"
+                    suspended: false
+
+  /users/suspend:
+    patch:
+      security:
+        - AccessTokenAuth: []
+      summary: Sospende usando la mail
+      tags: [UserController]
+      description: Sospende un utente specificato dalla mail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mail:
+                  type: string
+                  format: email
+      responses:
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "utente non trovato"
+        "403":
+          description: Impossibile sospendere l'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Non puoi sospendere un admin o un operatore"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
+                error: dettagli errore
+        "200":
+          description: "Utente sospeso"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      suspended:
+                        type: boolean
+              example:
+                message: Utente sospeso con successo
+                user:
+                  _id: "64f8a2c123abc456def78901"
+                  email: "utente@example.com"
+                  suspended: true
+
+  /users/unsuspend:
+      patch:
+        security:
+          - AccessTokenAuth: []
+        summary: Sospende usando la mail
+        tags: [UserController]
+        description: Riattiva un utente specificato dalla mail
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mail:
+                    type: string
+                    format: email
+        responses:
+          "404":
+            description: Utente non trovato
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+                example:
+                  message: "utente non trovato"
+          "500":
+            description: Errore interno del server
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+                example:
+                  message: "Errore del server"
+                  error: dettagli errore
+          "200":
+            description: "Utente riattivato con successo"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    user:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        email:
+                          type: string
+                          format: email
+                        suspended:
+                          type: boolean
+                example:
+                  message: Utente sospeso con successo
+                  user:
+                    _id: "64f8a2c123abc456def78901"
+                    email: "utente@example.com"
+                    suspended: false
+
+  /user/suspended:
+    get:
+      security:
+        - AccessTokenAuth: []
+      summary: Recupera gli account sospesi
+      tags: [UserController]
+      responses:
+        "200":
+          description: Lista utenti sospesi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserProfileResponse"
+                example:
+                  _id: 12345
+                  email: user@example.com"
+                  role: user
+        "500":
+          description: "Errore interno del server"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: Errore durante il recupero degli utenti sospesi
+                error: dettagli errore
+
+  /user/suspicious:
+    get:
+      security:
+        - AccessTokenAuth: []
+      summary: Recupera gli account sospetti
+      tags: [UserController]
+      responses: 
+        "200":
+          description: Lista di utenti con attività sospetta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  maxMessages:
+                    type: integer
+                  timeRange:
+                    type: string
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserProfileResponse"
+     
+  /user/{id}/messages:
+    get:
+      security:
+        - AccessTokenAuth: []
+      summary: Recupera i messaggi di un utente
+      tags: [UserController]
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses: 
+        "200": 
+          description: Messaggi dell'utente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  suspended:
+                    type: boolean
+                  totalMessages:
+                    type: integer
+                  timeRange:
+                    type: string
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ChatMessage"
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Utente non trovato"
+        "500":
+            description: Errore interno del server
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+                example:
+                  message: "Errore del server"
+                  error: "dettagli errore"
 
   # --------------------------------------------------------------
   # DOCUMENT CONTROLLER
@@ -440,7 +846,7 @@ paths:
       - AccessTokenAuth: []
       summary: Recupera documenti
       tags: [DocumentController]
-      description: Restituisce tutti i documenti (embedding escluso).
+      description: Restituisce tutti i documenti.
       responses:
         "200":
           description: Lista documenti
@@ -490,6 +896,11 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/DocumentCreate"
+            example:
+              title: "NuovoDocumento"
+              content: "Contenuto"
+              category: "Monumenti"
+              source: "Fonte"
       responses:
         "201":
           description: Documento creato
@@ -534,7 +945,7 @@ paths:
                 error: "dettagli errore"
 
   /documents/{id}:
-    put:
+    patch:
       security:
       - AccessTokenAuth: []
       summary: Aggiorna documento
@@ -552,6 +963,11 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/DocumentCreate"
+            example:
+              title: "NuovoDocumento"
+              content: "Contenuto"
+              category: "Monumenti"
+              source: "Fonte"
       responses:
         "200":
           description: Documento aggiornato
@@ -647,6 +1063,27 @@ paths:
                 message: "Errore nel server"
                 error: "dettagli errore"
 
+  /documents/categories:
+    get:
+      security:
+        - AccessTokenAuth: []
+      summary: Ottieni categorie
+      tags: [DocumentController]
+      description: Recupera le categorie dei documenti
+      responses:
+        "200":
+          description: Lista delle categori
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    name:
+                      type: string
+              example:
+                - name: "Farmaci"
+                - name: "Integratori"
  
   # --------------------------------------------------------------
   # CHAT CONTROLLER
@@ -665,6 +1102,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ChatMessageRequest"
+            example:
+              sessionId: session-1700000000000
+              message: Come si raggiunge Trento?
+              useHybrid: false
       responses:
         "200":
           description: Risposta bot
@@ -679,7 +1120,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                error: "message e sessionId sono obbligatori"
+                message: "message e sessionId sono obbligatori"
         "500":
           description: Errore interno del server
           content:
@@ -687,7 +1128,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                error: "Errore interno durante l'invio del messaggio"
+                message: "Errore interno durante l'invio del messaggio"
+                error: dattagli errore
 
   /chat/{sessionId}:
     get:
@@ -725,7 +1167,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                error: "Errore durante il recupero dello storico chat"
+                message: "Errore del server"
+                error: "dettagli errore"
 
   /chat/{messageId}/feedback:
     post:
@@ -775,7 +1218,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                error: "Errore durante feedback"
+                message: "Errore del server"
+                error: "dettagli errore"
+                
+                
 
   /chat/session:
     post:
@@ -844,6 +1290,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/FAQCreate"
+            example:
+              question: "Come si raggiunge il Muse?"
+              category: Musei
       responses:
         "201":
           description: FAQ creata con successo
@@ -851,6 +1300,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FAQ"
+              example:
+                _id: 12345
+                question: "Come si ragiunge il Muse"
+                category: "Musei"
         "400":
           description: Categoria non valida
           content:
@@ -876,7 +1329,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                message: "Errore interno del server durante la creazione della FAQ."
+                message: "Errore interno del server"
+                details: "dettagli errore"
 
   /faqs/{id}:
     put:
@@ -896,6 +1350,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/FAQUpdate"
+            example:
+              question: "Come si raggiunge il Muse"
+              category: "Musei"
       responses:
         "200":
           description: FAQ aggiornata
@@ -903,6 +1360,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FAQ"
+              example:
+                  question: "Come si raggiunge il Muse"
+                  category: "Musei"
         "400":
           description: Dati non validi
           content:
@@ -911,7 +1371,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Dati non validi. Verifica che la categoria sia corretta."
-                details: "Mongoose validation error details"
         "401":
           description: Domanda troppo lunga
           content:
@@ -920,7 +1379,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "La domanda è troppo lunga. La lunghezza massima consentita è 200 caratteri."
-                details: null
         "404":
           description: FAQ non trovata
           content:
@@ -929,7 +1387,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "FAQ non trovata"
-                details: null
         "500":
           description: Errore interno del server
           content:
@@ -937,8 +1394,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                message: "Errore interno del server durante l'aggiornamento della FAQ."
-                details: null
+                message: "Errore interno del server"
+                error: "dettgli errore"
 
     delete:
       security:
@@ -979,9 +1436,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                message: "Errore durante l'eliminazione della FAQ"
-                details: "Dettagli tecnici dell'errore"
-
+                message: "Errore interno del server"
+                details: "dettagli errore"
+  /faqs/categories:
+    get:
+      security:
+      - AccessTokenAuth: []
+      summary: Recupera categorie FAQs
+      tags: [FaqController]
+      responses: 
+        "200":
+          description: Recupera le categorie delle FAQs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    type: string
+              example:
+                - "Centro"
+                - "Eventi"
+                - "Monumenti"
+        "500": 
+          description: "Errore interno del server"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
+                error: "dettagli errore"
 # --------------------------------------------------------------
 # SERVICE MANAGEMENT CONTROLLER
 # --------------------------------------------------------------
@@ -1083,6 +1568,76 @@ paths:
                     type: string
               example:
                 message: "Impossibile disabilitare il servizio"
+
+
+# --------------------------------------------------------------
+# DASHBOARD CONTROLLER
+# --------------------------------------------------------------
+
+  /dashboard/feedback/stats:
+    get:
+      security:
+      - AccessTokenAuth: []
+      summary: Statistiche ultimi feedback
+      tags: [DashboardController]
+      responses:
+        "200":
+          description: Statistiche ultimi feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackStatsResponse"
+              example:
+                positive: 21
+                negative: 5
+                total: 26
+        "500":
+          description: "Errore interno del server"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server."
+                error: "dettagli errore"
+
+  /dashboard/last-questions:
+    get:
+      security:
+      - AccessTokenAuth: []
+      summary: Recupera ultimi messaggi
+      tags: [DashboardController]
+      responses:
+        "200":
+          description: Lista ultimi messaggi inviati al chatbot
+          content: 
+            application/json:
+              schema:
+                $ref:  "#/components/schemas/LastQuestionsResponse"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
+                error: "dettagli errore" 
+
+  /dashboard/feedback:
+    get:
+      security:
+      - AccessTokenAuth: []
+      summary: Recupera tutti i feedback
+      tags: [DashboardController]
+      responses:
+        "200":
+          description: Lista che contiene tutti i feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackResponse"
+
 
 # --------------------------------------------------------------
 # COMPONENTS
@@ -1391,3 +1946,59 @@ components:
       properties:
         message:
           type: string
+
+    FeedbackStatsResponse:
+      type: object
+      properties:
+        positive:
+          type: integer
+        negative:
+          type: integer
+        total:
+          type: integer
+
+    LastQuestionsResponse:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              sessionId:
+                type: string
+              role:
+                type: string
+              content:
+                type: string
+              retrievedDocs:
+                type: array
+                items:
+                  type: string
+              feedback:
+                type: string
+              comment:
+                type: string
+      
+    FeedbackResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              sessionId:
+                type: string
+              role:
+                type: string
+              content:
+                type: string
+              retrivedDocs:
+                type: array
+                items:
+                  type: string
+              feedback:
+                type: string
+              comment:
+                type: string
