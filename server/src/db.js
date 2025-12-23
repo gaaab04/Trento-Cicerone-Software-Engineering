@@ -3,14 +3,13 @@ import dotenv from 'dotenv';
 
 // script per la connessione al database
 
-dotenv.config(); // carica le variabili  dal file .env
 
-const connectDB = async () => {
+const connectDB = async (uri) => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect(uri);
         console.log('MongoDB connesso');
     } catch (err) {
-        console.error('MongoDB connection error:', err.message);
+        console.error('MongoDB errore nella connessione:', err.message);
         process.exit(1); // termina
     }
 };

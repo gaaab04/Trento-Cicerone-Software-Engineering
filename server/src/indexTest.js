@@ -16,9 +16,6 @@ import serviceStatusManager from './services/serviceStatusManager.js';
 
 const app = express();
 
-// connessione a mongodb
-connectDB(process.env.MONGO_URI);
-
 // middleware generali
 app.use(express.json());
 app.use(cookieParser());
@@ -27,7 +24,6 @@ app.use(cors({
     credentials: true
 }));
 
-serviceStatusManager.initialize();
 
 // rotte auth
 app.use('/api', authRoutes)
@@ -61,6 +57,4 @@ app.get('/', (req, res) => {
     res.send('API funzionano...');
 });
 
-// avvio del server
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Il server sta andando sulla porta ${PORT}`));
+export default app;
