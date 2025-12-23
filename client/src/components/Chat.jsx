@@ -17,6 +17,7 @@ function Chat({ messages }) {
 
 
     // gestisce invio feedback inviando la richiesta al backend e chiude il popup
+    // gestisce invio feedback inviando la richiesta al backend e chiude il popup
     const handleFeedback = async (messageId, feedbackType, comment) => {
         try {
             await axios.post(`${API}/api/chat/${messageId}/feedback`, { feedback: feedbackType, comment: comment}, { withCredentials: true });

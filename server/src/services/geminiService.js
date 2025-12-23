@@ -1,5 +1,6 @@
 import {GoogleGenerativeAI} from '@google/generative-ai'
 import dotenv from 'dotenv'
+import {franc} from "franc";
 
 dotenv.config();
 
@@ -89,6 +90,19 @@ class GeminiService {
                 .map(msg => `${msg.role} ${msg.content}`)
                 .join('\n')
             : 'Prima interazione';
+
+        // rileva la lingua dalla query dell'utente
+        let language = franc(userQuery);
+        switch (language) {
+            case 'ita': language = "italian"; break;
+            case 'eng': language = "english"; break;
+            case 'fra': language = "french"; break;
+            case 'spa': language = "spanish"; break;
+            case 'und': language = "italian"; break;
+            default: language = "italian";
+        }
+        console.log("lingua rilevata:", language);
+
         // prompt principale
         const prompt =
             `Sei un assistente virtuale esperto sulla città di Trento, in Italia.
@@ -103,6 +117,7 @@ class GeminiService {
             8. Se non conosci la risposta, rispondi chiaramente che non hai informazioni disponibili su quell'argomento e suggerisci eventuali temi correlati su cui puoi aiutare.
             9. Non menzionare mai di leggere documenti o fonti esterne.
             10. Mantieni la risposta coerente e concisa, evitando di inventare dati.
+            11. Rispondi in questa lingua: ${language}
             
             DOCUMENTI RILEVANTI: 
             ${context}

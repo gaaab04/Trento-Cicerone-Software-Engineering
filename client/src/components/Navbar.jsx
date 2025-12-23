@@ -11,7 +11,7 @@ function Navbar() {
 
     const getRole = async () => {
         try {
-            const res = await axios.get(`${ API }/api/users/me`)
+            const res = await axios.get(`${ API }/api/users/me`, {withCredentials: true})
             setRole(res.data.role);
         } catch (error) {
             console.error(error);

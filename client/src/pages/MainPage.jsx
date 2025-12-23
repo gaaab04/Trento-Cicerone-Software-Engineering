@@ -79,7 +79,7 @@ function MainPage() {
             const res = await axios.post(`${API}/api/chat`, {
                 message,
                 sessionId: sessionId,
-            });
+            }, {withCredentials: true});
 
             //aggiorna i messaggi rimuovendo il loading e aggiungendo il messaggio di gemini
             setMessages(prev => {

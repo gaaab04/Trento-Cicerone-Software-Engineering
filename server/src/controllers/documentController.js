@@ -1,7 +1,7 @@
 import geminiService from "../services/geminiService.js";
 import Document from "../models/Document.js";
 
-// funzione per aggiungere un documento json
+// funzione per aggiungere un documento
 export async function addDocument(req, res) {
     try {
         const  {title, content, category, source} = req.body;
@@ -43,7 +43,7 @@ export async function addDocument(req, res) {
     }
 }
 
-// funzione per aggiornare un documento json
+// funzione per aggiornare un documento
 export async function updateDocument (req, res) {
     try {
         const id = req.params.id;
@@ -63,7 +63,7 @@ export async function updateDocument (req, res) {
         if (title) document.title = title;
         if (content) document.content = content;
         if (category) document.category = category;
-        if (source) document.source = source;
+        if (source) document.metadata.source = source;
 
         // se cambia il titolo o il contenuto, aggiorno l'embedding. altrimenti se cambiano solo la categoria o la fonte non serve
         let toEmbed = false;
@@ -97,7 +97,7 @@ export async function updateDocument (req, res) {
     }
 }
 
-// funzione per eliminare un documento json
+// funzione per eliminare un documento
 export async function deleteDocument(req, res) {
     try {
         const documentId = req.params.id;
@@ -115,7 +115,7 @@ export async function deleteDocument(req, res) {
     }
 }
 
-// funzione per recuperare tutti i documenti json presenti nel db
+// funzione per recuperare tutti i documenti presenti nel db
 export async function getDocuments (req, res) {
     try {
         const documents = await Document.find({}, {embedding: 0}).sort({updatedAt: -1});

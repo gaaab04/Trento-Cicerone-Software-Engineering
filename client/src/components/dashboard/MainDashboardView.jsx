@@ -90,7 +90,6 @@ function MainDashboardView() {
                         <p className="widgetStat">Risposta non utile: {feedbackStats.negative}</p>
                         <p className="widgetStat">Feedback totali: {feedbackStats.total}</p>
                     </div>
-                    <p className="widgetRedirect">Vai ai feedback</p>
                 </div>
 
                 <div className="widget widgetService">
@@ -114,7 +113,6 @@ function MainDashboardView() {
                             <p>Nessuna domanda recente</p>
                         )}
                     </div>
-                    <p className="widgetRedirect">Vai a domande recenti</p>
                 </div>
             </div>
 
