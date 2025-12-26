@@ -9,16 +9,15 @@ import {
 
 const router = express.Router();
 
-//tutte le rotte qui sotto sono accessibili solo ad admin
-router.use(verifyUser, permit("admin"));
 
-// GET /api/admin/operators
+
+// GET /api/admin/operators - restituisce lista utenti con ruolo operator e admin
 router.get('/operators', verifyUser, permit("admin"), getActiveOperatorsAndAdmins);
 
-// PATCH /api/access/admin/promote/ - prende mail nel body
+// PATCH /api/admin/promote/ - prende mail nel body
 router.patch('/promote', verifyUser, permit("admin"), promoteUser);
 
-// PATCH /api/access/admin/demote - prende mail nel body
+// PATCH /api/admin/demote - prende mail nel body
 router.patch('/demote', verifyUser, permit("admin"), demoteUser);
 
 export default router;

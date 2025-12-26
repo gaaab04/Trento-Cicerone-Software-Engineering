@@ -45,7 +45,7 @@ export const registerUser = async (req, res) => {
         // controlla se l'email è già registrata
         const existingUser = await UserModel.findOne({email});
         if (existingUser) {
-            return res.json({message: "Questa mail è già in uso"});
+            return res.status(400).json({message: "Questa mail è già in uso"});
         }
 
         // cripta la password con bcrypt
@@ -74,7 +74,7 @@ export const loginUser = async (req, res) => {
         const user = await UserModel.findOne({ email });
 
         if (!user) {
-            return res.json({ login:false,  message: "nessuna corrispondenza trovata" });
+            return res.status(401).json({ login:false,  message: "nessuna corrispondenza trovata" });
         }
 
         // confronta la password criptata nel database con quella inserita nel form
@@ -82,7 +82,7 @@ export const loginUser = async (req, res) => {
 
         // se la password non corrisponde, restituisce un errore
         if (!isPasswordValid) {
-            return res.json({ login:false, message: "la password non corrisponde" });
+            return res.status(400).json({ login:false, message: "la password non corrisponde" });
         }
 
         // token di accesso

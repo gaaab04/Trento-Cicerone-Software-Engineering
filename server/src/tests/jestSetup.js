@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import connectDB from '../db.js';
+import {jest} from '@jest/globals'
 
 let mongoServer;
+jest.setTimeout(30000);
 
 beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();

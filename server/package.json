@@ -6,7 +6,7 @@
   "description": "",
   "scripts": {
     "start": "node src/index.js",
-    "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --setupFilesAfterEnv ./src/tests/jestSetup.js"
+    "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest "
   },
   "keywords": [],
   "author": "",

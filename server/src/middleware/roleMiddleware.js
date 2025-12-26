@@ -2,7 +2,7 @@
 export const permit = (...allowedRoles) => {
     return async (req, res, next) => {
         try {
-            // assicurarsi che verifyUser user sia stato eseguito
+            // verifyUser è già stato eseguito
             if (!req.role) {
                 return res.status(403).json({message: "ruolo non trovato"});
             }

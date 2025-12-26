@@ -77,15 +77,15 @@ export async function updateDocument (req, res) {
             const embedding = await geminiService.createEmbedding(fullText);
 
             if (!embedding || embedding.length !== 768) {
-            return res.status(400).json({message: "Embedding non valido. Le dimensioni sono errate"});
+                return res.status(400).json({message: "Embedding non valido. Le dimensioni sono errate"});
           }
 
             document.embedding = embedding;
-
+            const actualContent = contentChanged ? content : document.content;
             document.metadata = {
                 ...document.metadata,
                 lastUpdated: new Date(),
-                wordCount: content.split(' ').length,
+                wordCount: actualContent.split(' ').length,
             }
         }
 

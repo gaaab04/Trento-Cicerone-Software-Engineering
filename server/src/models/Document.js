@@ -29,4 +29,5 @@ const documentSchema = new mongoose.Schema({
 
 // creo indice per le ricerche testuali
 documentSchema.index({ title: 'text', content: 'text' });
-export default mongoose.model('Document', documentSchema);
+const DocumentModel = mongoose.models.Document || mongoose.model("Document", documentSchema);
+export default DocumentModel;

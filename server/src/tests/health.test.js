@@ -1,7 +1,10 @@
 import request from 'supertest';
 import app from '../indexTest.js';
 
-test('GET / returns 200', async () => {
-    const res = await request(app).get('/');
-    expect (res.statusCode).toBe(200);
-})
+describe('Health check', () => {
+    it('GET / should return 200', async () => {
+        const res = await request(app).get('/');
+        expect(res.status).toBe(200);
+        expect(res.text).toBe('API funzionano...');
+    });
+});
