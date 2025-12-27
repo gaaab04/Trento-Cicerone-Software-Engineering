@@ -11,5 +11,8 @@ const FaqSchema = new mongoose.Schema({
 });
 
 // crea il modello, si usa per interagire con il DB
-const FaqModel = mongoose.model("Faq", FaqSchema);
+const FaqModel = mongoose.models.Faq || mongoose.model("Faq", FaqSchema);
 export default FaqModel;
+
+
+// crea il modello, si usa per interagire con il DB

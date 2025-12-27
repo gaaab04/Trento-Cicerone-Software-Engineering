@@ -6,20 +6,20 @@ export const promoteUser = async (req, res) => {
         const {email} = req.body; // utente da promuovere
         const user = await UserModel.findOne ({email});
         if (!user) {
-            return res.json({message: "Utente non trovato"});
+            return res.status(404).json({message: "Utente non trovato"});
         }
 
         // se l'utente è già un operatore o un admin non lo promuove
         if (user.role === "operator" || user.role === "admin") {
-            return res.json({message: "Non è possibile promuovere un operatore o un admin"});
+            return res.status(400).json({message: "Non è possibile promuovere un operatore o un admin"});
         }
 
         // altrimenti va tutto bene
         user.role = "operator";
         await user.save();
-        return res.json({message: "Utente promosso a operatore"});
+        return res.status(200).json({message: "Utente promosso a operatore"});
     } catch (error) {
-        return res.json({message: "Errore del server", error: error.message});
+        return res.status(500).json({message: "Errore del server", error: error.message});
     }
 }
 
@@ -40,14 +40,14 @@ export const demoteUser = async (req, res) => {
             return res.status(401).json({message: "Non è possibile togliere il ruolo di operatore ad un admin"});
         }
 
-        // aggiorna il ruolo dell'utente'
+        // aggiorna il ruolo dell'utente
         user.role = "user";
-        // salva l'utente aggiornato'
+        // salva l'utente aggiornat
         await user.save();
         // restituisce json di successo
-        return res.json({message: "Ruolo di operatore rimosso"});
+        return res.status(200).json({message: "Ruolo di operatore rimosso"});
     } catch (error) {
-        return res.json({message: "Errore del server", error: error.message});
+        return res.status(500).json({message: "Errore del server", error: error.message});
     }
 }
 

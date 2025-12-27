@@ -23,9 +23,8 @@ export const createFaq = async (req, res) => {
     const newFaq = new FaqModel({ question, category });
 
     try {
-        // Salva il nuovo documento nel database
+        // Salva nel database
         const savedFaq = await newFaq.save();
-
         return res.status(201).json(savedFaq);
 
     } catch (error) {
@@ -37,23 +36,23 @@ export const createFaq = async (req, res) => {
             if (newFaq.question.length > 200) {
                 return res.status(401).json({
                     message: "Impossibile creare la FAQ. Superato limite 200 caratteri della domanda.",
-                    details: error.message // Includi il messaggio di Mongoose per i dettagli specifici (es. quale campo ha fallito)
+                    details: error.message
                 });
             }
 
             // Se è un ValidationError, lo stato 400 indica un errore di input del client
             return res.status(400).json({
-                message: "Impossibile creare la FAQ. Verifica che il campo 'category' sia valido.",
-                details: error.message // Includi il messaggio di Mongoose per i dettagli specifici (es. quale campo ha fallito)
+                message: "Impossibile creare la FAQ. Verifica che il campo category sia valido.",
+                details: error.message
             });
         }
 
-        // Gestione degli altri errori (es. errore di connessione al DB, ecc.)
+        // Gestione degli altri errori
         return res.status(500).json({ message: "Errore interno del server durante la creazione della FAQ." });
     }
 };
 
-// Funzione per MODIFICARE una FAQ esistente (Update)
+// Funzione per modificare una FAQ esistente (Update)
 export const updateFaq = async (req, res) => {
 
     // L'ID del documento da modificare è preso dai parametri dell'URL (es. /faqs/123)
@@ -77,7 +76,7 @@ export const updateFaq = async (req, res) => {
             return res.status(404).json({ message: "FAQ non trovata" });
         }
 
-        //risposta con ritorno della faq in formato json appena aggiornata
+        //risposta con ritorno della faq
         return res.status(200).json(updatedFaq);
 
     } catch (error) {
@@ -85,14 +84,14 @@ export const updateFaq = async (req, res) => {
 
         // Controlla se l'errore è un errore di validazione di Mongoose
         if (error.name === 'ValidationError') {
-            // Se è un ValidationError (dovuto a 'enum', 'required', 'maxlength', ecc.)
+            // Se è un ValidationError (dovuto a enum, required, maxlength)
             return res.status(400).json({
                 message: "Dati non validi. Verifica che la categoria sia corretta.",
-                details: error.message // Include il messaggio di Mongoose per i dettagli (es. "Category is not a valid enum value")
+                details: error.message // Include il messaggio di Mongoose per i dettagli
             });
         }
 
-        // Per tutti gli altri tipi di errore (es. errore di connessione al DB, ecc.)
+        // Per tutti gli altri tipi di errore
         return res.status(500).json({
             message: "Errore interno del server durante l'aggiornamento della FAQ."
         });
@@ -108,7 +107,7 @@ export const deleteFaq = async (req, res) => {
         const deletedFaq = await FaqModel.findByIdAndDelete(id);
 
         if (!deletedFaq) {
-            return res.json({ message: "FAQ non trovata" });
+            return res.status(404).json({ message: "FAQ non trovata" });
         }
 
         // Risposta HTTP 200 OK con messaggio di successo
