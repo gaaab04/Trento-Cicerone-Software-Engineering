@@ -8,5 +8,5 @@ const ServiceStatus = new mongoose.Schema({
 });
 
 // crea il modello, si usa per interagire con il DB
-const ServiceModel = mongoose.model("Service", ServiceStatus);
+const ServiceModel = mongoose.models.Service || mongoose.model("Service", ServiceStatus);
 export default ServiceModel;
