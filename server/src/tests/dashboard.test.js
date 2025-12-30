@@ -1,10 +1,9 @@
-import {jest} from '@jest/globals'
 import request from 'supertest';
 import app from '../indexTest.js';
 import UserModel from '../models/User.js';
 import bcrypt from "bcrypt";
 import MessageModel from "../models/Message.js";
-import mongoose from "mongoose";
+
 
 describe('Dashboard routes', () => {
     const validMail = "validMail@gmail.com";
