@@ -7,10 +7,10 @@ import {permit} from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// GET /api/dashboard/feedback
+// GET /api/dashboard/feedback - recupera feedback (permesso a operatori e admin)
 router.get('/feedback', verifyUser, permit("operator", "admin"), getFeedbacks);
 
-// GET /api/dashboard/feedback/stats - recupera numero feedback (permesso a operatori e admin)
+// GET /api/dashboard/feedback/stats - recupera numero feedback delle ultime 24h (permesso a operatori e admin)
 router.get('/feedback/stats', verifyUser, permit("operator", "admin"), getLastFeedbacksNumber);
 
 //GET /api/dashboard/last-questions?limit=X - recupera ultime X domande (permesso a operatori e admin)

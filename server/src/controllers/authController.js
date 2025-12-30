@@ -9,7 +9,7 @@ const isValidEmail = (email) => {
 }
 
 // check lato backend della validità della password
-const isValidPassword = (password) => {
+export const isValidPassword = (password) => {
     const errors = [];
     if (!password || password.length < 8) errors.push("La password deve essere lunga almeno 8 caratteri");
     if (password.length > 16) errors.push("La password non può superare i 16 caratteri");

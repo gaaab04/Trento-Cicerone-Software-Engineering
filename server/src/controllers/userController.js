@@ -1,7 +1,7 @@
 import UserModel from "../models/User.js";
-import user from "../models/User.js";
 import bcrypt, {hash} from "bcrypt";
 import Message from "../models/Message.js";
+import {isValidPassword} from "./authController.js";
 
 // Funzione per recuperare il profilo dell'utente attualmente loggato
 export const getMe = async (req, res) => {
@@ -57,6 +57,12 @@ export const changePassword = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({message: "La password vecchia non coincide con quella registrata. Riprova."})
         }
+
+        // controllo che la nuova paassword sia validamu
+        if(!isValidPassword(newPassword)) return res.status(400).json(
+            {message: "La password deve contenere almeno una lettera minuscola, una lettera maiuscola, un numero e un carattere speciale."}
+        )
+
         // password corretta, quindi cripta la nuova password
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(newPassword, saltRounds);

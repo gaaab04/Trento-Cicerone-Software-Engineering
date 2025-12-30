@@ -4,7 +4,6 @@ import app from '../indexTest.js';
 import UserModel from '../models/user.js';
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import User from "../models/user.js";
 
 describe('Admin routes', () => {
     const validMail = "validMail@gmail.com";
