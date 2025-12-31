@@ -135,7 +135,7 @@ export async function addFeedback(req, res) {
         }
 
         // restituisce il messaggio
-        return res.json(message);
+        return res.status(200).json(message);
 
     } catch (error) {
         console.error('errore durante feedback:', error);
@@ -148,7 +148,7 @@ export async function createSession(req, res) {
     try {
         // genera un id unico per la sessione, in questo caso viene usato il timestamp corrente ma se volessimo potremmo usare un id generato dal server, però bisognerebbe creare un altro modello solo per il counter
         const sessionId = `session-${Date.now()}`;
-        return res.json({ sessionId });
+        return res.status(200).json({ sessionId });
     } catch (error) {
         console.error('errore durante la creazione della sessione:', error);
         return res.status(500).json({message:"Errore del server",  error: error.message });
