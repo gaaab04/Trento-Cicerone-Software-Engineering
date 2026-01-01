@@ -13,30 +13,20 @@ function LoginWindow() {
     const navigate = useNavigate();
     axios.defaults.withCredentials = true;
 
-    const handleSubmit = (e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post(`${API}/api/login`, {email, password})
-            .then(result => {
-                console.log(result)
-                if (result.data.message === "Password corretta") {
-                    navigate('/')
-                }
-
-                else if (result.data.message === "nessuna corrispondenza trovata") {
-                    alert("Email non trovata. Controlla di aver scritto correttamente la tua email oppure registrati")
-                }
-
-                else if (result.data.message === "la password non corrisponde") {
-                    alert("Password errata")
-                }
-                else {
-                    alert("Errore nel server")
-                }
-
-
-            })
-            .catch(err => console.log(err))
+        try {
+            await axios.post(`${API}/api/login`, {email, password});
+            navigate('/')
+        }
+        catch(err) {
+            if (err.response.status === 401) alert("Password errata");
+            else if (err.response.status === 404) alert("Email non trovata. Controlla di aver scritto correttamente la tua email oppure registrati");
+            else alert("Errore nel server");
+        }
     }
+
     return (
         <div className="mainWrapper">
             <div className="titoloApp">

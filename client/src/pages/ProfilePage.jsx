@@ -10,6 +10,7 @@ function ProfilePage() {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
+
     const navigate = useNavigate();
     useEffect(() => {
         const fetchProfile = async () => {
@@ -44,26 +45,47 @@ function ProfilePage() {
 
     if (loading) return <div className="profilePage">Caricamento profilo in corso...</div>;
 
+    const isValidPassword = (password) => {
+        const errors = [];
+        if (!password || password.length < 8) errors.push("La password deve essere lunga almeno 8 caratteri");
+        if (password.length > 16) errors.push("La password non può superare i 16 caratteri");
+        if (!/[a-z]/.test(password)) errors.push("La password deve contenere almeno una lettera minuscola");
+        if (!/[A-Z]/.test(password)) errors.push("La password deve contenere almeno una lettera maiuscola");
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push("La passwod deve contenere almeno un carattere speciale");
+        return errors;
+    }
+
     const handlePasswordChange = async (e) => {
+        e.preventDefault();
+
+        if(!oldPassword || !newPassword) return alert("Compila tutti i campi");
+
+        const passwordErrors = isValidPassword(newPassword);
+        if (passwordErrors.length > 0) {
+            alert("Password non valida:\n\n" + passwordErrors.join("\n"));
+            return;
+        }
+
         try {
-            e.preventDefault();
-            await axios.patch(`${API}/api/users/changePassword`, {oldPassword, newPassword}, {withCredentials: true});
+            await axios.patch(
+                `${API}/api/users/changePassword`,
+                {oldPassword, newPassword},
+                {withCredentials: true}
+            )
+
             alert("Password cambiata con successo");
             setOldPassword("");
             setNewPassword("");
-            return;
+
         } catch (error) {
-            console.error('Errore durante il cambio password:', error);
-            if (error.response.status === 400) {
-                alert("Compila tutti i campi");
-            }
-            else if (error.response.status === 401) {
-                setOldPassword("");
-                setNewPassword("");
+            if (error.response.status === 401) {
                 alert("Password vecchia errata. Riprova");
             }
+            else if (error.response.status === 400) {
+                alert(error.response.data.message);
+            }
             else {
-                alert("Errore durante il cambio password. Controlla la vecchia password e riprova");
+                alert("Errore durante il cambio password. Riprova più tardi");
             }
         }
     }
@@ -105,11 +127,13 @@ function ProfilePage() {
                             <input className="inputPassword"
                                    type="password"
                                    placeholder="Inserisci la vecchia password"
+                                   value = {oldPassword}
                                    onChange={(e) => setOldPassword(e.target.value)}
                             />
                             <input className="inputPassword"
                                    type="password"
                                    placeholder="Inserisci la nuova password"
+                                   value = {newPassword}
                                    onChange={(e) => setNewPassword(e.target.value)}
                             />
                             <button className="changePasswordButton">Cambia password</button>

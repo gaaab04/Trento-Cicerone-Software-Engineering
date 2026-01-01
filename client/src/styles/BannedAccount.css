@@ -38,6 +38,7 @@
 
 .bannedAccount p {
     font-size: 2rem;
+    color: white;
 }
 
 @media (max-width: 800px) {

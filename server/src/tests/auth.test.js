@@ -46,7 +46,7 @@ describe('Auth routes', () => {
             const res = await request(app)
                 .post('/api/login')
                 .send({email: "notauser@gmail.com", password: 'ValidPass1!'});
-            expect(res.status).toBe(401);
+            expect(res.status).toBe(404);
             expect(res.body.login).toBe(false)
             expect(res.body.message).toBe("nessuna corrispondenza trovata");
         })
@@ -54,7 +54,7 @@ describe('Auth routes', () => {
             const res = await request(app)
                 .post('/api/login')
                 .send({email: 'validMail@gmail.com', password: 'wrongpassword'});
-            expect(res.status).toBe(400);
+            expect(res.status).toBe(401);
             expect(res.body.login).toBe(false)
             expect(res.body.message).toBe("la password non corrisponde");
         })
