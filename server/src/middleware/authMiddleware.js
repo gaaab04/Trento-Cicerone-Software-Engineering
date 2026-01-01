@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import UserModel from "../models/User.js";
 
+
+
 // middleware per la verifica che l'utente sia autenticato
 export const verifyUser = async (req, res, next) => {
     //prende il token dal cookie
@@ -52,8 +54,14 @@ export const renewToken = (req, res) => {
         if (err) return res.status(401).json({ valid: false, message: "token di rinnovo non valido" });
 
         // se valido genero un nuovo token di accesso e lo invio nel cookie
+        const isProduction = process.env.NODE_ENV === "production";
         const newAccessToken = jwt.sign({userId: decoded.userId, email: decoded.email, role:decoded.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        res.cookie("accessToken", newAccessToken, { maxAge: 3600000, httpOnly: true, secure: false, sameSite: 'lax' });
+        res.cookie("accessToken", newAccessToken, {
+            maxAge: 3600000,
+            httpOnly: true,
+            secure: isProduction ? true : false,
+            sameSite: isProduction ? "none" : "lax"
+        });
 
         // ritorna messaggio di successo
         return res.json({ valid: true, message: "token rinnovato" });
