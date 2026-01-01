@@ -22,8 +22,13 @@ connectDB(process.env.MONGO_URI);
 // middleware generali
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? true
+    : ['http://localhost:5173'];
+
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true
 }));
 

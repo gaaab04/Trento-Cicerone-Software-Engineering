@@ -20,6 +20,9 @@ export const isValidPassword = (password) => {
     else return true;
 }
 
+// check se siamo in produzione o no (mi serve per gestire i cookie in modo diverso)
+ const isProduction = process.env.NODE_ENV === "production";
+
 // registra un nuovo utente
 export const registerUser = async (req, res) => {
     try {
@@ -96,8 +99,18 @@ export const loginUser = async (req, res) => {
             {expiresIn: "7d"});
 
         // dopo aver generato i token, li invia nel cookie
-        res.cookie("accessToken", accessToken, {maxAge: 3600000, httpOnly: true, secure: false, sameSite: 'lax'}); //TODO una volta che siamo in HTTPS, cambiare secure a true e sameSite a 'strict'
-        res.cookie("refreshToken", refreshToken, {maxAge: (3600000*7*24), httpOnly: true, secure: false, sameSite: 'lax'}); //TODO forse refreshToken va salvato nel DB
+        res.cookie("accessToken", accessToken, {
+            maxAge: 3600000,
+            httpOnly: true,
+            secure: isProduction ? true : false,
+            sameSite: isProduction ? "none" : "lax"
+        });
+        res.cookie("refreshToken", refreshToken, {
+            maxAge: (3600000*7*24),
+            httpOnly: true,
+            secure: isProduction ? true : false,
+            sameSite: isProduction ? "none" : "lax"
+        });
 
         // restituisce un messaggio di successo
         return res.json({ login:true, message: "Password corretta", role:user.role});
@@ -110,8 +123,16 @@ export const loginUser = async (req, res) => {
 // funzione per effettuare il logout dell'utente
 export const logoutUser = (req, res) => {
     // prima rimuove i cookie dal browser
-    res.clearCookie("accessToken", {httpOnly: true, secure: false, sameSite: 'lax'}); //TODO vanno cambiati quando si va ad https
-    res.clearCookie("refreshToken", {httpOnly: true, secure: false, sameSite: 'lax'});
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: isProduction ? true : false,
+        sameSite: isProduction ? "none" : "lax"
+    });
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: isProduction ? true : false,
+        sameSite: isProduction ? "none" : "lax"
+    });
 
     // invia messaggio di successo
     return res.status(200).json({message: "Logout effettuato con successo"});
