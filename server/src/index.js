@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? ['https://trento-cicerone.onrender.com']
+    ? ['https://trento-cicerone-software-engineerin.vercel.app/']
     : ['http://localhost:5173'];
 
 app.use(cors({
