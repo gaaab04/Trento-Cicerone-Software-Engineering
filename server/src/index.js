@@ -16,6 +16,8 @@ import serviceStatusManager from './services/serviceStatusManager.js';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // connessione a mongodb
 connectDB(process.env.MONGO_URI);
 
