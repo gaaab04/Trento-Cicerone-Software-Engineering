@@ -26,13 +26,18 @@ app.use(express.json());
 app.use(cookieParser());
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? ['https://trento-cicerone-software-engineerin.vercel.app/']
+    ? ['https://trento-cicerone-software-engineerin.vercel.app']
     : ['http://localhost:5173'];
 
 app.use(cors({
     origin: allowedOrigins,
     credentials: true
 }));
+
+app.options('*', cors({
+   origin: allowedOrigins,
+    credentials: true,
+}))
 
 serviceStatusManager.initialize();
 
