@@ -18,6 +18,8 @@ jobs:
       matrix:
         node-version: [22.x]
 
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
