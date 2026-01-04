@@ -2,7 +2,7 @@ import {jest} from '@jest/globals'
 import request from 'supertest';
 import app from '../indexTest.js';
 import UserModel from "../models/User.js";
-import FaqModel from "../models/faq.js";
+import FaqModel from "../models/Faq.js";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 

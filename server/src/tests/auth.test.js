@@ -1,7 +1,7 @@
 import request from 'supertest';
 import bcrypt from 'bcrypt';
 import app from '../indexTest.js';
-import UserModel from '../models/user.js';
+import UserModel from '../models/User.js';
 
 describe('Auth routes', () => {
     describe('POST /api/register', () => {

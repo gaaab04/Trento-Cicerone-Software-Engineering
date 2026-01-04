@@ -1,7 +1,7 @@
 import {jest} from '@jest/globals'
 import request from 'supertest';
 import app from '../indexTest.js';
-import UserModel from '../models/user.js';
+import UserModel from '../models/User.js';
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
