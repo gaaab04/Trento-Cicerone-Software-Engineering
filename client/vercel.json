@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://trento-cicerone-software-engineering.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
