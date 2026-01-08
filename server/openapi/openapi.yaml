@@ -7,7 +7,7 @@ info:
     name: MIT
 
 servers:
-  - url: http://localhost:5001/api/v1
+  - url: http://localhost:5001/api
     description: Localhost
 
 paths:
@@ -20,6 +20,7 @@ paths:
     post:
       summary: Registrazione utente
       tags: [AuthController]
+      description: Registra un nuovo utente
       requestBody:
         required: true
         content:
@@ -52,19 +53,22 @@ paths:
                 emailNonDisponibile:
                   value:
                     message: "Email già in uso"
+                emailPasswordMancanti:
+                  value:
+                    message: "Email e password sono obbligatori"
         "500":
           description: Errore interno nel server
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ServerError"
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: Errore del server
-                error: dettagli errore
   /login:
     post:
       summary: Login utente
       tags: [AuthController]
+      description: Effettua il login dell'utente
       requestBody:
         required: true
         content:
@@ -78,34 +82,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoginResponse"
-              examples:
-                successoLogin:
+              example:
                   value:
                     login: true
                     message: "Password corretta"
                     role: "user"
-                utenteNonTrovato:
-                  value:
-                    login: false
-                    message: "nessuna corrispondenza trovata"
-                passwordNonCorrisponde:
-                  value:
-                    login: false
-                    message: "la password non corrisponde"
+        "404":
+          description: Nessuna corrispondenza
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              example: 
+                value:
+                  login: false
+                  message: "Nessuna corrispondenza trovata"
+        "401":
+          description: La password non corrisponde
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              example:
+                value:
+                  login: false
+                  message: "La password non corrisponde"            
         "500":
           description: Errore interno nel server
           content:
             application/json:
               schema:
-                $ref: "#/components/responses/ServerError"
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: Errore del server
-                error: dettagli errore
 
   /logout:
     post:
       summary: Logout
       tags: [AuthController]
+      description: Effettua il logout dell'utente
       responses:
         "200":
           description: Logout effettuato
@@ -123,6 +138,12 @@ paths:
     post:
       summary: Rinnovo token
       tags: [AuthMiddleware]
+      description: Rinnova il token
+      parameters:
+        - name: refreshToken
+          in: cookie
+          schema:
+            type: string
       responses:
         "200":
           description: Token rinnovato
@@ -156,12 +177,19 @@ paths:
 
   /protected:
     get:
+      security:
+        - AccessTokenAuth: []
       summary: Verifica token
       tags: [AuthMiddleware]
-      description: Verifica il token di accesso presente nel cookie "accessToken".
+      description: Verifica il token di accesso.
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
       responses:
         "401":
-          description: Token mancante, non valido o scaduto
+          description: Token mancante, non valido, scaduto o utente non trovato
           content:
             application/json:
               schema:
@@ -175,6 +203,20 @@ paths:
                   value:
                     valid: false
                     message: "token non valido o scaduto"
+                utenteNonTrovato:
+                  value:
+                    valid: false
+                    message: "utente non trovato"
+        "403":
+          description: Account sospeso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenErrorResponse"
+              example:
+                  valid: false
+                  message: "L'account è sospeso"
+
 
   # --------------------------------------------------------------
   # ADMIN
@@ -197,9 +239,12 @@ paths:
                 items:
                 $ref: "#/components/schemas/UserProfileResponse"
               example:
-                _id: 123456
-                example: "user@example.com"
-                role: "user"
+              - _id: "123456"
+                email: "admin1@example.com"
+                role: "operator"
+              - _id: "789012"
+                email: "admin2@example.com"
+                role: "admin"
         "500":
           description: "Errore interno del server"
           content:
@@ -208,21 +253,28 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore nel server"
-                error: "dettagli errore"
 
-  /access/admin/promote/{id}:
+  /admin/promote:
     patch:
       security:
         - AccessTokenAuth: []
       summary: Promuove utente a operatore
       tags: [AdminController]
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      description: Promuove un utente al ruolo di operatore, se possibile. Il token di accesso viene preso dal cookie.
+      description: Promuove un utente al ruolo di operatore, se possibile. 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: "utente@example.com"
       responses:
         "200":
           description: Risultato operazione
@@ -230,34 +282,54 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PromoteUserResponse"
-              examples:
-                utentePromosso:
-                  value:
+              example:
                     message: "Utente promosso a operatore"
-                utenteNonTrovato:
-                  value:
-                    message: "Utente non trovato"
-                nonPromuovibile:
-                  value:
-                    message: "Non è possibile promuovere un operatore o un admin"
-                erroreServer:
-                  value:
-                    message: "Errore del server"
-                    error: "dettagli errore"
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromoteUserResponse"
+              example:
+                  message: "Utente non trovato"
+        "400":
+          description: Non promuovibile
+          content:
+            application/json:
+                schema:
+                  $ref: "#/components/schemas/PromoteUserResponse"
+                example:
+                  message: "Non è possibile promuovere un operatore o un admin"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+                example:
+                  message: "Errore nel server"
 
-  /access/admin/demote/{id}:
+  /admin/demote:
     patch:
       security:
         - AccessTokenAuth: []
       summary: Demote utente da operatore a user
       tags: [AdminController]
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      description: Rimuove il ruolo di operatore da un utente, se possibile. Il token di accesso viene preso dal cookie.
+      description: Rimuove il ruolo di operatore da un utente, se possibile.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: "utente@example.com"
       responses:
         "200":
           description: Risultato operazione
@@ -265,20 +337,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DemoteUserResponse"
+              example:
+                  message: "Ruolo di operatore rimosso"
+        "401":
+          description: Impossibile rimuovere il ruolo
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/DemoteUserResponse"
               examples:
-                demoted:
+                utente:
                   value:
-                    message: "Ruolo di operatore rimosso"
-                userNotFound:
+                    message: "Non è possibile togliere il ruolo di operatore da un utente normale" 
+                admin:
                   value:
-                    message: "Utente non trovato"
-                notOperator:
-                  value:
-                    message: "Non è possibile togliere il ruolo di operatore da un utente normale"
-                serverError:
-                  value:
-                    message: "Errore del server"
-                    error: "dettagli errore"
+                    message: "Non è possibile togliere il ruolo di operatore ad un admin"     
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/DemoteUserResponse"
+              example:
+                  message: "Utente non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                  message: "Errore del server"
 
   # --------------------------------------------------------------
   # ROLE CONTROLLER
@@ -290,7 +379,7 @@ paths:
         - AccessTokenAuth: []
       summary: Accesso pubblico
       tags: [RoleController]
-      description: Restituisce informazioni accessibili a chiunque. Il token, se presente, viene letto dal cookie.
+      description: Restituisce informazioni accessibili a chiunque.
       responses:
         "200":
           description: Accesso consentito
@@ -304,11 +393,6 @@ paths:
                     message: "Accesso consentito a chiunque"
                     user: "mario.rossi@example.com"
                     role: "user"
-                accessoSenzaToken:
-                  value:
-                    message: "Accesso consentito a chiunque"
-                    user: null
-                    role: null
                 erroreServer:
                   value:
                     message: "Errore del server"
@@ -319,7 +403,7 @@ paths:
         - AccessTokenAuth: []
       summary: Accesso operatori e admin
       tags: [RoleController]
-      description: Restituisce informazioni accessibili solo a operatori e admin. Il token viene letto dal cookie.
+      description: Restituisce informazioni accessibili solo a operatori e admin.
       responses:
         "200":
           description: Accesso consentito
@@ -328,11 +412,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/OperatorAccessResponse"
               examples:
-                accessoConToken:
-                  value:
-                    message: "Accesso consentito a operatori e admin"
-                    user: "mario.rossi@example.com"
-                    role: "operator"
                 accessoAdmin:
                   value:
                     message: "Accesso consentito a operatori e admin"
@@ -341,8 +420,6 @@ paths:
                 accessoSenzaToken:
                   value:
                     message: "Errore del server"
-                    user: null
-                    role: null
 
   /access/admin:
     get:
@@ -350,7 +427,7 @@ paths:
         - AccessTokenAuth: []
       summary: Accesso solo admin
       tags: [RoleController]
-      description: Restituisce informazioni accessibili solo agli admin. Il token viene letto dal cookie.
+      description: Restituisce informazioni accessibili solo agli admin.
       responses:
         "200":
           description: Accesso consentito
@@ -367,8 +444,6 @@ paths:
                 accessoSenzaToken:
                   value:
                     message: "Errore del server"
-                    user: null
-                    role: null
 
   # --------------------------------------------------------------
   # USER CONTROLLER
@@ -380,7 +455,7 @@ paths:
         - AccessTokenAuth: []
       summary: Profilo utente loggato
       tags: [UserController]
-      description: Restituisce il profilo dell'utente autenticato tramite token presente nel cookie.
+      description: Restituisce il profilo dell'utente autenticato.
       responses:
         "200":
           description: Profilo recuperato
@@ -416,15 +491,14 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server durante il recupero del profilo."
-                error: "dettagli errore"
 
-  /users/me/changePassword:
+  /users/changePassword:
     put:
       security:
         - AccessTokenAuth: []
       summary: Cambia password
       tags: [UserController]
-      description: Modifica la password dell'utente autenticato. Il token viene letto dal cookie.
+      description: Modifica la password dell'utente autenticato. 
       requestBody:
         required: true
         content:
@@ -475,7 +549,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server durante la modifica della password."
-                error: dettagli errori
 
   /users/{id}/suspend:
     patch:
@@ -489,33 +562,8 @@ paths:
           required: true
           schema:
             type: string
-      description: Sospende un utente specificato dall'id
+      description: Sospende un utente specificato dall'id.
       responses:
-        "404":
-          description: Utente non trovato
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "utente non trovato"
-        "403":
-          description: Impossibile sospendere l'utente
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "Non puoi sospendere un admin o un operatore"
-        "500":
-          description: Errore interno del server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "Errore del server"
-                error: "dettagli errore"
         "200":
           description: "Utente sospeso"
           content:
@@ -541,21 +589,6 @@ paths:
                   _id: "64f8a2c123abc456def78901"
                   email: "utente@example.com"
                   suspended: true
-
-  /users/{id}/unsuspend:
-    patch:
-      security:
-        - AccessTokenAuth: []
-      summary: Riattiva un utente usando l'Id
-      tags: [UserController]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      description: Riattiva un utente specificato dall'id
-      responses:
         "404":
           description: Utente non trovato
           content:
@@ -564,6 +597,14 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "utente non trovato"
+        "403":
+          description: Impossibile sospendere l'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Non puoi sospendere un admin o un operatore"
         "500":
           description: Errore interno del server
           content:
@@ -572,7 +613,21 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
+
+  /users/{id}/unsuspend:
+    patch:
+      security:
+        - AccessTokenAuth: []
+      summary: Riattiva un utente usando l'id.
+      tags: [UserController]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Riattiva un utente specificato dall'id.
+      responses:
         "200":
           description: "Utente sospeso"
           content:
@@ -598,6 +653,23 @@ paths:
                   _id: "64f8a2c123abc456def78901"
                   email: "utente@example.com"
                   suspended: false
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "utente non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
+                error: "dettagli errore"
 
   /users/suspend:
     patch:
@@ -605,7 +677,7 @@ paths:
         - AccessTokenAuth: []
       summary: Sospende usando la mail
       tags: [UserController]
-      description: Sospende un utente specificato dalla mail
+      description: Sospende un utente specificato dalla mail.
       requestBody:
         required: true
         content:
@@ -617,31 +689,6 @@ paths:
                   type: string
                   format: email
       responses:
-        "404":
-          description: Utente non trovato
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "utente non trovato"
-        "403":
-          description: Impossibile sospendere l'utente
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "Non puoi sospendere un admin o un operatore"
-        "500":
-          description: Errore interno del server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "Errore del server"
-                error: dettagli errore
         "200":
           description: "Utente sospeso"
           content:
@@ -667,6 +714,30 @@ paths:
                   _id: "64f8a2c123abc456def78901"
                   email: "utente@example.com"
                   suspended: true
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "utente non trovato"
+        "403":
+          description: Impossibile sospendere l'utente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Non puoi sospendere un admin o un operatore"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
 
   /users/unsuspend:
     patch:
@@ -674,7 +745,7 @@ paths:
         - AccessTokenAuth: []
       summary: Sospende usando la mail
       tags: [UserController]
-      description: Riattiva un utente specificato dalla mail
+      description: Riattiva un utente specificato dalla mail.
       requestBody:
         required: true
         content:
@@ -686,23 +757,6 @@ paths:
                   type: string
                   format: email
       responses:
-        "404":
-          description: Utente non trovato
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "utente non trovato"
-        "500":
-          description: Errore interno del server
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                message: "Errore del server"
-                error: dettagli errore
         "200":
           description: "Utente riattivato con successo"
           content:
@@ -728,26 +782,54 @@ paths:
                   _id: "64f8a2c123abc456def78901"
                   email: "utente@example.com"
                   suspended: false
+        "404":
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "utente non trovato"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
 
-  /user/suspended:
+  /users/suspended:
     get:
       security:
         - AccessTokenAuth: []
       summary: Recupera gli account sospesi
       tags: [UserController]
+      description: Recupera la lista degli utenti sospesi.
       responses:
         "200":
           description: Lista utenti sospesi
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UserProfileResponse"
-                example:
-                  _id: 12345
-                  email: user@example.com"
-                  role: user
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Numero totale di utenti sospesi
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserProfileResponse"
+              example:
+                total: 2
+                users:
+                  - _id: "648d2f5e2f1b3c6b12345678"
+                    email: "user1@example.com"
+                    role: "user"
+                  - _id: "648d2f5e2f1b3c6b87654321"
+                    email: "user2@example.com"
+                    role: "user"
         "500":
           description: "Errore interno del server"
           content:
@@ -756,14 +838,25 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: Errore durante il recupero degli utenti sospesi
-                error: dettagli errore
 
-  /user/suspicious:
+  /users/suspicious:
     get:
       security:
         - AccessTokenAuth: []
       summary: Recupera gli account sospetti
       tags: [UserController]
+      description: Recupera la lista degli utenti sospetti.
+      parameters:
+        - name: maxMessages
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: hours
+          in: query
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: Lista di utenti con attività sospetta
@@ -782,19 +875,52 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/UserProfileResponse"
+                example:
+                      total: 3
+                      maxMessages: 50
+                      timeRange: "24h"
+                      users:
+                        - _id: "648d2f5e2f1b3c6b11111111"
+                          email: "utente1@example.com"
+                          role: "user"
+                        - _id: "648d2f5e2f1b3c6b22222222"
+                          email: "utente2@example.com"
+                          role: "user"
+                        - _id: "648d2f5e2f1b3c6b33333333"
+                          email: "utente3@example.com"
+                          role: "operator"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
 
-  /user/{id}/messages:
+  /users/{id}/messages:
     get:
       security:
         - AccessTokenAuth: []
       summary: Recupera i messaggi di un utente
       tags: [UserController]
+      description: Recupera la lista dei messaggi di un utente.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+        - name: hours
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: Messaggi dell'utente
@@ -818,6 +944,13 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/ChatMessage"
+                example:
+                  userId: "648d2f5e2f1b3c6b12345678"
+                  email: "mario.rossi@example.com"
+                  suspended: false
+                  totalMessages: 0
+                  timeRange: "24h"
+                  messages:
         "404":
           description: Utente non trovato
           content:
@@ -834,7 +967,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
 
   # --------------------------------------------------------------
   # DOCUMENT CONTROLLER
@@ -864,7 +996,7 @@ paths:
                   embedding: 3
                   metadata:
                     source: "fonte1"
-                    lastUpdated: "2025-12-04T12:00:00Z"
+                    lastUpdated: "2025-12-04T12:00:00"
                 - _id: "648d2f5e2f1b3c6b87654321"
                   title: "Documento 2"
                   content: "Contenuto del documento 2"
@@ -872,7 +1004,7 @@ paths:
                   embedding: 3
                   metadata:
                     source: "fonte2"
-                    lastUpdated: "2025-12-04T12:30:00Z"
+                    lastUpdated: "2025-12-04T12:30:00"
 
         "500":
           description: Errore interno del server
@@ -882,14 +1014,13 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore nel server"
-                error: "dettagli errore"
 
     post:
       security:
         - AccessTokenAuth: []
       summary: Aggiungi documento
       tags: [DocumentController]
-      description: Crea un nuovo documento con embedding.
+      description: Crea un nuovo documento.
       requestBody:
         required: true
         content:
@@ -913,8 +1044,8 @@ paths:
                 title: "Nuovo Documento"
                 content: "Contenuto"
                 category: "categoria"
-                source: "fonte"
                 metadata:
+                  source: "fonte"
                   lastUpdated: "2025-12-04T13:00:00Z"
                   wordCount: 10
                   embeddingModel: "text-embedding-004"
@@ -950,7 +1081,7 @@ paths:
         - AccessTokenAuth: []
       summary: Aggiorna documento
       tags: [DocumentController]
-      description: Aggiorna un documento esistente; l'embedding viene aggiornato se cambiano titolo o contenuto.
+      description: Aggiorna un documento esistente.
       parameters:
         - in: path
           name: id
@@ -975,6 +1106,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Document"
+              example:
+                _id: "648d2f5e2f1b3c6b12345678"
+                title: "Nuovo Documento"
+                content: "Contenuto"
+                category: "categoria"
+                source: "fonte"
+                metadata:
+                    lastUpdated: "2025-12-04T13:00:00Z"
+                    wordCount: 10
+                    embeddingModel: "text-embedding-004"
         "400":
           description: Embedding non valido
           content:
@@ -999,7 +1140,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore nel server"
-                error: "dettagli errore"
 
     delete:
       security:
@@ -1061,7 +1201,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore nel server"
-                error: "dettagli errore"
 
   /documents/categories:
     get:
@@ -1072,7 +1211,7 @@ paths:
       description: Recupera le categorie dei documenti
       responses:
         "200":
-          description: Lista delle categori
+          description: Lista delle categorie
           content:
             application/json:
               schema:
@@ -1082,8 +1221,16 @@ paths:
                     name:
                       type: string
               example:
-                - name: "Farmaci"
-                - name: "Integratori"
+                - name: "Monumenti"
+                - name: "Storia"
+        "500": 
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore nel server"
 
   # --------------------------------------------------------------
   # CHAT CONTROLLER
@@ -1113,6 +1260,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChatMessageResponse"
+              example:
+                messageId: "65a1f2c3e4b0987d12345678"
+                response: "Puoi raggiungere Trento in treno da Verona in circa un'ora, oppure in auto tramite l'autostrada A22."
+                mainSource: "document_trentino_viaggi"
+                sources:
+                  - link: "collegamento"
+                searchMethod: "vector"
         "400":
           description: Parametri mancanti
           content:
@@ -1129,7 +1283,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno durante l'invio del messaggio"
-                error: dattagli errore
 
   /chat/{sessionId}:
     get:
@@ -1137,6 +1290,7 @@ paths:
         - AccessTokenAuth: []
       summary: Cronologia chat
       tags: [ChatController]
+      description: Recupera i messaggi della sessione specificata dall'id.
       parameters:
         - in: path
           name: sessionId
@@ -1168,7 +1322,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
 
   /chat/{messageId}/feedback:
     post:
@@ -1176,6 +1329,7 @@ paths:
         - AccessTokenAuth: []
       summary: Aggiungi feedback
       tags: [ChatController]
+      description: Aggiunge un feedback al messaggio specificato dall'id.
       parameters:
         - in: path
           name: messageId
@@ -1188,6 +1342,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/FeedbackRequest"
+            example: 
+              feedback: positive
+              comment: "Ottima risposta"
       responses:
         "200":
           description: Feedback aggiunto
@@ -1219,16 +1376,14 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
-
-
 
   /chat/session:
     post:
       security:
         - AccessTokenAuth: []
-      summary: Crea nuova sessione
+      summary: Crea sessione
       tags: [ChatController]
+      description: Crea una nuova sessione.
       responses:
         "200":
           description: Sessione creata
@@ -1249,7 +1404,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
 
   # --------------------------------------------------------------
   # FAQ CONTROLLER
@@ -1261,6 +1415,7 @@ paths:
         - AccessTokenAuth: []
       summary: "Recupera le FAQs"
       tags: [FaqController]
+      description: Recupera la lista delle FAQs.
       responses:
         "200":
           description: Lista FAQ
@@ -1270,6 +1425,17 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/FAQ"
+              example:
+              - question: "Come raggiungere Trento in treno da Verona?"
+                category: "Trasporti"
+              - question: "Quali musei sono aperti a Trento durante il weekend?"
+                category: "Turismo"
+              - question: "Dove parcheggiare vicino al centro storico di Trento?"
+                category: "Mobilità"
+              - question: "Quali sono i principali eventi culturali a Trento?"
+                category: "Eventi"
+              - question: "Come visitare il Castello del Buonconsiglio?"
+                category: "Turismo"
         "500":
           description: Errore del server
           content:
@@ -1282,8 +1448,9 @@ paths:
     post:
       security:
         - AccessTokenAuth: []
-      summary: "Inserisce una nuova FAQ"
+      summary: "Inserisce FAQ"
       tags: [FaqController]
+      description: Inserisce una nuova FAQ.
       requestBody:
         required: true
         content:
@@ -1301,7 +1468,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/FAQ"
               example:
-                _id: 12345
                 question: "Come si ragiunge il Muse"
                 category: "Musei"
         "400":
@@ -1330,14 +1496,14 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server"
-                details: "dettagli errore"
 
   /faqs/{id}:
     put:
       security:
         - AccessTokenAuth: []
-      summary: "Modifica una FAQ"
+      summary: "Modifica FAQ"
       tags: [FaqController]
+      description: Modifica una FAQ esistente.
       parameters:
         - in: path
           name: id
@@ -1395,13 +1561,13 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server"
-                error: "dettgli errore"
 
     delete:
       security:
         - AccessTokenAuth: []
-      summary: "Elimina una FAQ"
+      summary: "Elimina FAQ"
       tags: [FaqController]
+      description: Elimina una FAQ.
       parameters:
         - in: path
           name: id
@@ -1410,7 +1576,7 @@ paths:
             type: string
       responses:
         "200":
-          description: FAQ eliminata o non trovata
+          description: FAQ eliminata
           content:
             application/json:
               schema:
@@ -1425,10 +1591,14 @@ paths:
                   value:
                     message: "FAQ eliminata con successo"
                     deletedId: "64f7b123abc4567890def123"
-                nonTrovata:
-                  value:
-                    message: "FAQ non trovata"
-                    deletedId: null
+        "404":
+          description: FAQ non trovata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "FAQ non trovata"
         "500":
           description: Errore interno del server
           content:
@@ -1437,13 +1607,14 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore interno del server"
-                details: "dettagli errore"
+
   /faqs/categories:
     get:
       security:
         - AccessTokenAuth: []
       summary: Recupera categorie FAQs
       tags: [FaqController]
+      description: Recupera la categorie disponibili per le FAQs.
       responses:
         "200":
           description: Recupera le categorie delle FAQs
@@ -1455,7 +1626,6 @@ paths:
                   category:
                     type: string
               example:
-                - "Centro"
                 - "Eventi"
                 - "Monumenti"
         "500":
@@ -1466,7 +1636,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
+
   # --------------------------------------------------------------
   # SERVICE MANAGEMENT CONTROLLER
   # --------------------------------------------------------------
@@ -1477,6 +1647,7 @@ paths:
         - AccessTokenAuth: []
       summary: "Recupera lo stato del servizio"
       tags: [ServiceController]
+      description: Recupera lo stato del servizio, attivo o disattivato.
       responses:
         "200":
           description: Stato del servizio recuperato
@@ -1494,7 +1665,7 @@ paths:
                   value:
                     enabled: true
                     message: "Servizio attivo e funzionante"
-                disattivo:
+                disattivato:
                   value:
                     enabled: false
                     message: "Servizio temporaneamente non disponibile"
@@ -1516,6 +1687,7 @@ paths:
         - AccessTokenAuth: []
       summary: "Attiva il servizio"
       tags: [ServiceController]
+      description: Attiva il servizio.
       responses:
         "200":
           description: Servizio abilitato
@@ -1528,7 +1700,7 @@ paths:
                     type: string
               example:
                 message: "Servizio abilitato con successo"
-        "400":
+        "500":
           description: Errore nell'abilitare il servizio
           content:
             application/json:
@@ -1539,12 +1711,14 @@ paths:
                     type: string
               example:
                 message: "Impossibile abilitare il servizio"
+
   /services/disable:
     patch:
       security:
         - AccessTokenAuth: []
       summary: "Disattiva il servizio"
       tags: [ServiceController]
+      description: Disattiva il servizio.
       responses:
         "200":
           description: Servizio disabilitato
@@ -1557,7 +1731,7 @@ paths:
                     type: string
               example:
                 message: "Servizio disabilitato con successo"
-        "400":
+        "500":
           description: Errore nel disabilitare il servizio
           content:
             application/json:
@@ -1578,11 +1752,12 @@ paths:
     get:
       security:
         - AccessTokenAuth: []
-      summary: Statistiche ultimi feedback
+      summary: Statistiche feedback
       tags: [DashboardController]
+      description: Restituisce le statistiche degli ultimi feedback
       responses:
         "200":
-          description: Statistiche ultimi feedback
+          description: Statistiche ultimi feedback.
           content:
             application/json:
               schema:
@@ -1599,14 +1774,20 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server."
-                error: "dettagli errore"
 
-  /dashboard/last-questions:
+  /dashboard/last-questions/num:
     get:
       security:
         - AccessTokenAuth: []
       summary: Recupera ultimi messaggi
       tags: [DashboardController]
+      description: Restituisce gli ultimi messaggi, il numero di messaggi viene indicato nel parametro.
+      parameters:
+      - in: path
+        name: num
+        required: true
+        schema:
+          type: integer
       responses:
         "200":
           description: Lista ultimi messaggi inviati al chatbot
@@ -1622,7 +1803,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Errore del server"
-                error: "dettagli errore"
 
   /dashboard/feedback:
     get:
@@ -1630,6 +1810,7 @@ paths:
         - AccessTokenAuth: []
       summary: Recupera tutti i feedback
       tags: [DashboardController]
+      description: Recupera tutti i messaggi con feedback.
       responses:
         "200":
           description: Lista che contiene tutti i feedback
@@ -1637,6 +1818,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FeedbackResponse"
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: "Errore del server"
 
 
 # --------------------------------------------------------------
@@ -1650,38 +1839,6 @@ components:
       type: apiKey
       in: cookie
       name: x-access-token
-
-  responses:
-    BadRequest:
-      description: Dati non validi
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    Unauthorized:
-      description: Token mancante o non valido
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    Forbidden:
-      description: Accesso negato
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    NotFound:
-      description: Risorsa non trovata
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-    ServerError:
-      description: Errore interno del server
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
 
   schemas:
     RegisterRequest:
@@ -1783,12 +1940,12 @@ components:
         feedback:
           type: string
           enum: ["positive", "negative"]
+        comment:
+          type: string
 
     FAQ:
       type: object
       properties:
-        _id:
-          type: string
         question:
           type: string
         category:
