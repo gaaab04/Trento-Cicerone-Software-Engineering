@@ -15,7 +15,7 @@ describe('Document routes', () => {
 
     beforeAll(() => {
         // sostituisco la funzione di creazione embedding con una semplice matrice
-        geminiSpyCreateEmbedding = jest.spyOn(geminiService, 'createEmbedding').mockImplementation((text) => {
+        geminiSpyCreateEmbedding = jest.spyOn(geminiService, 'createEmbedding').mockImplementation((text, taskType) => {
             return Promise.resolve(new Array(768).fill(0.1));
         })
     })
@@ -56,7 +56,7 @@ describe('Document routes', () => {
             expect(res.body).toHaveProperty('title', 'validTitle');
             //verifico che createEmbedding sia stato chiamato
             expect(geminiSpyCreateEmbedding).toHaveBeenCalled();
-            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("validTitle\n\nvalidContent");
+            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith ("validTitle\n\nvalidContent", "RETRIEVAL_DOCUMENT");
         })
         test("should fail if category is not valid", async () => {
             const agent = request.agent(app)
@@ -226,7 +226,7 @@ describe('Document routes', () => {
             expect(res.body.title).toBe("newTitle");
             expect(res.body.content).toBe("newContent");
             // verifico che createEmbedding sia stato chiamato
-            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("newTitle\n\nnewContent");
+            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("newTitle\n\nnewContent", "RETRIEVAL_DOCUMENT");
         })
         test("should work with only title", async () => {
             await DocumentModel.create({
@@ -239,7 +239,7 @@ describe('Document routes', () => {
             const res = await agent.patch(`/api/documents/${id}`).send({title: "newTitle"});
             expect(res.status).toBe(200);
             expect(res.body.title).toBe("newTitle");
-            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("newTitle\n\nvalidContent");
+            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("newTitle\n\nvalidContent", "RETRIEVAL_DOCUMENT");
         })
         test("should work with only content", async () => {
             await DocumentModel.create({
@@ -252,7 +252,7 @@ describe('Document routes', () => {
             const res = await agent.patch(`/api/documents/${id}`).send({content: "newContent"});
             expect(res.status).toBe(200);
             expect(res.body.content).toBe("newContent");
-            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("validTitle\n\nnewContent");
+            expect(geminiSpyCreateEmbedding).toHaveBeenCalledWith("validTitle\n\nnewContent", "RETRIEVAL_DOCUMENT");
         })
         test("should work with only category", async () => {
             await DocumentModel.create({

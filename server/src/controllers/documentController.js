@@ -15,7 +15,7 @@ export async function addDocument(req, res) {
         }
         // faccio l'embedding del documento
         const fullText = `${title}\n\n${content}`;
-        const embedding = await geminiService.createEmbedding(fullText);
+        const embedding = await geminiService.createEmbedding(fullText, "RETRIEVAL_DOCUMENT");
 
         // l'embedding deve avere 768 dimensioni per essere valido su mongo
         if (!embedding || embedding.length !== 768) {
@@ -32,7 +32,7 @@ export async function addDocument(req, res) {
                 source,
                 lastUpdated: new Date(),
                 wordCount: content.split(' ').length,
-                embeddingModel: "text-embedding-004"
+                embeddingModel: "gemini-embedding-001"
             }
         });
 
@@ -74,7 +74,7 @@ export async function updateDocument (req, res) {
         // rifa l'embedding
         if (toEmbed === true) {
             const fullText = `${document.title}\n\n${document.content}`;
-            const embedding = await geminiService.createEmbedding(fullText);
+            const embedding = await geminiService.createEmbedding(fullText, "RETRIEVAL_DOCUMENT");
 
             if (!embedding || embedding.length !== 768) {
                 return res.status(400).json({message: "Embedding non valido. Le dimensioni sono errate"});
@@ -123,8 +123,6 @@ export async function getDocuments (req, res) {
     }   catch (error) {
         return res.status(500).json({message: "Errore nel server", error: error.message});
     }
-
-
 }
 
 // funzione che restituisce tutte le categorie

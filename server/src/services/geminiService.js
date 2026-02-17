@@ -1,4 +1,4 @@
-import {GoogleGenerativeAI} from '@google/generative-ai'
+import {GoogleGenAI} from "@google/genai";
 import dotenv from 'dotenv'
 import {franc} from "franc";
 
@@ -16,26 +16,12 @@ class GeminiService {
         // indica che il servizio è pronto
         this.available = true;
 
-        // istanzia il generatore di risposte
-        this.genAI = new GoogleGenerativeAI(this.apiKey);
+        // istanzia il client per le api di google
+        this.genAI = new GoogleGenAI({apiKey: this.apiKey});
 
-        // modello di generazione della risposta, qui ho messo gemini 2.5 flash lite che è il più economico ma possiamo cambiarlo
-        this.model = this.genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash-lite',
-            generationConfig: {
-                temperature: 0.6, // quantità di fantasia - precisione, TODO forse andrebbe alzato
-                topP: 0.9, // limita la scelta ai token più probabili
-                topK: 40, // determina quanti token vengono considerati
-                maxOutputTokens: 1024, //lunghezza massima della risposta
-            }
-        });
-
-        // genera 768 dimensioni, quindi ho settato atlas a numDimensions = 768 perché devono essere uguali
-        this.embeddingModel = this.genAI.getGenerativeModel({
-            model: 'text-embedding-004'
-            //text-embedding-004
-            // gemini-embedding-001
-        });
+        // modelli per generazione testo e embedding
+        this.generativeModelName = "gemini-2.5-flash-lite";
+        this.embeddingModelName = "gemini-embedding-001";
 
         console.log("Gemini è pronto");
     }
@@ -43,16 +29,25 @@ class GeminiService {
     // funzione che genera la risposta al prompt
     async generateResponse(prompt) {
         try {
-            const result = await  this.model.generateContent(prompt);
-            const text = result.response.text();
-            return text;
+            const response = await this.genAI.models.generateContent({
+                model: this.generativeModelName,
+                contents: prompt,
+                config: {
+                    temperature: 0.6,       // quantità di fantasia - precisione, TODO forse andrebbe alzato
+                    topP: 0.9,              // limita la scelta ai token più probabili
+                    topK: 40,               // determina quanti token vengono considerati
+                    maxOutputTokens: 1024   //lunghezza massima della risposta
+                }
+            })
+            return response.text;
         } catch (error) {
             console.error("Errore nella generazione della risposta: ", error.message);
             throw new Error (`Errore di gemini: ${error.message}`);
         }
     }
 
-    async createEmbedding(text) {
+    // si occupa di creare embedding. RETRIEVAL_QUERY per le domande (l'ho messo di default) e RETRIEVAL_DOCUMENT per i documenti
+    async createEmbedding(text, taskType = "RETRIEVAL_QUERY") {
         try {
             // ci si assicura che il testo sia valido
             if (!text || typeof text !== 'string' || text.trim().length === 0) {
@@ -61,16 +56,24 @@ class GeminiService {
             // qui tronco la lunghezza del testo a 10.000 caratteri perché penso sia il limite di gemini
             const trucatedText = text.slice(0, 10000);
 
-
             // qui si richiede l'embedding al modello
-            const result = await this.embeddingModel.embedContent(trucatedText);
-            const embedding = result.embedding.values;
+            const response = await this.genAI.models.embedContent({
+                model: this.embeddingModelName,
+                contents: trucatedText,
+                config: {
+                    outputDimensionality: 768,    // dimensione vettore (ho messo 768 perché deve essere uguale al valore messo su mongo)
+                    taskType: taskType
+                }
+            });
+
+            const embedding = response.embeddings[0].values;
             return embedding;
         } catch (error) {
             console.error("Errore nella creazione dell'embedding: ", error.message);
             throw new Error(`Errore di gemini: ${error.message}`);
         }
     }
+
 
     async generateContextualResponse(userQuery, relevantDocs, chatHistory = []) {
         // questa è la parte di costruzione del contesto dei documenti
@@ -96,8 +99,6 @@ class GeminiService {
         switch (language) {
             case 'ita': language = "italian"; break;
             case 'eng': language = "english"; break;
-            case 'fra': language = "french"; break;
-            case 'spa': language = "spanish"; break;
             case 'und': language = "italian"; break;
             default: language = "italian";
         }

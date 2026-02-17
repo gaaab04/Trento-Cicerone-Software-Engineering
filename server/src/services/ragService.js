@@ -3,12 +3,11 @@ import geminiService from "./geminiService.js";
 
 
 class RAGService {
-
     // questa funzione trova i documenti rilevanti per la query
     async retrieveRelevantDocuments(query, limit = 5, category = null) {
         try {
             // creo l'embedding con gemini
-            const queryEmbedding = await geminiService.createEmbedding(query);
+            const queryEmbedding = await geminiService.createEmbedding(query, "RETRIEVAL_QUERY");
 
             // costruzione della ricerca vettoriale
             const vectorStage = {
@@ -89,8 +88,6 @@ class RAGService {
             return this.fallbackSearch(query, limit);
         }
     }
-
-
 
     // funzione di ricerca stupida che viene usata se quella sopra fallisce
     async fallbackSearch(query, limit = 5) {
