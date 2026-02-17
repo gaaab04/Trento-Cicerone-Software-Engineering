@@ -13,7 +13,7 @@ Il progetto è suddiviso in due cartelle:
 - **Frontend**: React, Vite, CSS
 - **Backend**: Node.js Express
 - **Database**: MongoDB (con Mongoose).
-- **AI & Embeddings**: Google Gemini API (`gemini-2.5-flash-lite` + `text-embedding-004`)
+- **AI & Embeddings**: Google Gemini API (`gemini-2.5-flash-lite` + `gemini-embedding-001`)
 - **Autenticazione**: JWT (Access Token e Refresh Token) salvati in cookie HTTP
 - **Testing**: Jest e Supertest per i test di integrazione del backend.
 
